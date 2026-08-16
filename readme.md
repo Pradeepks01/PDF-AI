@@ -215,9 +215,3 @@ Run both the frontend and backend with a single command:
 ```bash
 docker-compose up --build
 ```
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. Free for personal and commercial use.
