@@ -2,8 +2,13 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const DATA_DIR = process.env.VERCEL || process.env.NODE_ENV === "production"
+  ? path.join("/tmp", "pdfrag-data")
+  : path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
+
+// In-memory fallback
+let inMemoryUsers: StoredUser[] = [];
 
 export interface StoredUser {
   id: string;
@@ -24,25 +29,36 @@ function ensureDataFile() {
       fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2), "utf8");
     }
   } catch (err) {
-    console.error("Error ensuring users.json file:", err);
+    // Read-only environment fallback to in-memory
   }
 }
 
-// Read all users from disk
+// Read all users from disk or memory
 export function getAllUsers(): StoredUser[] {
   ensureDataFile();
   try {
-    const data = fs.readFileSync(USERS_FILE, "utf8");
-    return JSON.parse(data || "[]");
-  } catch (err) {
-    return [];
+    if (fs.existsSync(USERS_FILE)) {
+      const data = fs.readFileSync(USERS_FILE, "utf8");
+      const parsed = JSON.parse(data || "[]");
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+    return inMemoryUsers;
+  } catch {
+    return inMemoryUsers;
   }
 }
 
-// Save users array to disk
+// Save users array to disk or memory
 function saveUsers(users: StoredUser[]) {
+  inMemoryUsers = users;
   ensureDataFile();
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
+  } catch {
+    // Saved in memory
+  }
 }
 
 // Hash password with salt using PBKDF2 (SHA-512)
@@ -54,8 +70,12 @@ export function hashPassword(password: string, salt?: string): { hash: string; s
 
 // Verify password
 export function verifyPassword(password: string, hash: string, salt: string): boolean {
-  const testHash = crypto.pbkdf2Sync(password, salt, 10000, 64, "sha512").toString("hex");
-  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(testHash));
+  try {
+    const testHash = crypto.pbkdf2Sync(password, salt, 10000, 64, "sha512").toString("hex");
+    return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(testHash));
+  } catch {
+    return false;
+  }
 }
 
 // Register a new user
