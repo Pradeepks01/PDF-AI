@@ -1,0 +1,18 @@
+[
+  {
+    "id": "usr_1786794190594_4227789e",
+    "name": "Test User",
+    "email": "test@example.com",
+    "passwordHash": "bbe7a2135bff3ebac2539db7e4c3eb821fa386320178bcd324f5f25266b76e896b6a8dbd59bc5f17470a98601899d983901bddc7a14a352f25b6480f92f02157",
+    "salt": "43a0ecd02b8ea56588e9285a86b59f7a",
+    "createdAt": "2026-08-15T11:43:10.594Z"
+  },
+  {
+    "id": "usr_1786794271545_37dcbc93",
+    "name": "Pradeep KS",
+    "email": "pradeepks7483@gmail.com",
+    "passwordHash": "876f85113b63a45f7431a4e36d553fecd11772bfba7f68a03484de2af866b316648198318f814f7c2b27dece6947550d4c53c0525dba8513a3d4155523f3a597",
+    "salt": "ec566b1887784a972b1f0375ab925b2f",
+    "createdAt": "2026-08-15T11:44:31.545Z"
+  }
+]
