@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import Link from "next/link";
 import { useSession, signOut } from 'next-auth/react'

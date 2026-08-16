@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Globe, MessageSquare, ExternalLink, Loader2, Sparkles, Database } from 'lucide-react'
 import pythonAxios from '@/lib/python-axios'
-import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import ChatComponent from '@/components/ChatComponent'
 import {

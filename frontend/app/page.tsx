@@ -23,15 +23,11 @@ import {
   Database,
   CheckCircle2,
   Flame,
-  Binary,
-  Code2,
-  Compass,
 } from "lucide-react";
 
 export default function HomePage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<"pdf" | "web" | "chat">("chat");
 
   useEffect(() => {
     setMounted(true);

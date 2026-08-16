@@ -19,7 +19,6 @@ import {
   Moon,
   ArrowRight,
   ShieldCheck,
-  CheckCircle2,
   ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";

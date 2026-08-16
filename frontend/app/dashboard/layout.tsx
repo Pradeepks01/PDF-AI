@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Menu,
-  FileText,
   Globe,
   Link2,
   KeyRound,
@@ -18,7 +17,6 @@ import {
   ChevronRight,
   Sparkles,
   MessagesSquare,
-  Compass,
 } from "lucide-react";
 import NavbarProfile from "@/components/NavbarProfile";
 import { ModeToggle } from "@/components/ModeToggle";

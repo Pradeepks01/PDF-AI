@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, Sparkles, Mic, Send } from 'lucide-react';
+import { Sparkles, Mic, Send } from 'lucide-react';
 import pythonAxios from '@/lib/python-axios';
 import ReactMarkdown from 'react-markdown';
 import { useMutation } from '@tanstack/react-query';
