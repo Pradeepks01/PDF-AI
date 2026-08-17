@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMediaQuery } from "react-responsive";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,18 +20,39 @@ import {
 } from "lucide-react";
 import NavbarProfile from "@/components/NavbarProfile";
 import { ModeToggle } from "@/components/ModeToggle";
-import { signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isLargeScreen = useMediaQuery({ query: "(min-width: 1024px)" });
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     setMounted(true);
     setIsSidebarOpen(isLargeScreen);
   }, [isLargeScreen]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace(`/sign-in?callbackUrl=${encodeURIComponent(pathname || "/dashboard")}`);
+    }
+  }, [status, router, pathname]);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="size-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center animate-pulse shadow-lg shadow-primary/20">
+            <Sparkles className="size-5" />
+          </div>
+          <p className="text-xs text-muted-foreground animate-pulse font-mono">Authenticating session...</p>
+        </div>
+      </div>
+    );
+  }
 
   const navItems = [
     { href: "/dashboard", label: "RAG Workspace", icon: MessagesSquare },
@@ -98,7 +119,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     : "text-muted-foreground hover:bg-card hover:text-foreground border border-transparent"
                 }`}
               >
-                <Icon className={`size-4 shrink-0 ${active ? "text-primary" : ""}`} />
+                <Icon className={`size-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
                 <span className="truncate">{item.label}</span>
               </Link>
             );
@@ -106,96 +127,83 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
 
-      {/* Bottom Actions */}
+      {/* User Footer Actions */}
       <div className="pt-3 border-t border-border/60 space-y-2">
-        <div className="px-3 py-2 rounded-xl bg-card/60 border border-border/60 text-[11px] text-muted-foreground flex items-center justify-between">
-          <span className="flex items-center gap-1.5 font-medium">
-            <Sparkles className="size-3.5 text-primary" />
-            <span>SOTA 6-Stage RAG</span>
-          </span>
-          <span className="text-[9px] bg-primary/15 text-primary px-1.5 py-0.5 rounded font-mono font-semibold">
-            Active
-          </span>
-        </div>
-
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="w-full justify-start text-xs text-destructive hover:text-destructive hover:bg-destructive/10 gap-2 h-9 rounded-xl cursor-pointer"
-          onClick={() => signOut({ callbackUrl: "/sign-in" })}
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="w-full justify-start gap-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-border/80 rounded-xl font-medium"
         >
-          <LogOut className="size-4" />
-          <span>Logout</span>
+          <LogOut className="size-3.5" />
+          Sign Out
         </Button>
       </div>
     </nav>
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/25 selection:text-foreground">
-      {/* ---------------- TOP HEADER ---------------- */}
-      <header className="sticky top-0 z-40 h-14 border-b border-border/60 bg-background/80 backdrop-blur-xl px-4 flex items-center justify-between">
-        {/* Left: Sidebar Toggle + Title */}
-        <div className="flex items-center gap-3">
-          {mounted && isLargeScreen ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-            >
-              {isSidebarOpen ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
-            </Button>
-          ) : (
-            mounted && (
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
+      {/* Desktop Collapsible Sidebar */}
+      {isLargeScreen && (
+        <aside
+          className={`h-full border-r border-border/80 bg-sidebar transition-all duration-300 ease-in-out relative flex flex-col shrink-0 ${
+            isSidebarOpen ? "w-64" : "w-0 overflow-hidden border-r-0"
+          }`}
+        >
+          {isSidebarOpen && <SidebarContent />}
+        </aside>
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        {/* Top Navbar */}
+        <header className="h-14 border-b border-border/80 bg-card/80 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-10">
+          <div className="flex items-center gap-2">
+            {/* Mobile Sheet Trigger */}
+            {!isLargeScreen && (
               <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8 text-muted-foreground cursor-pointer rounded-lg">
+                  <Button variant="ghost" size="icon" className="size-8 rounded-lg">
                     <Menu className="size-4" />
+                    <span className="sr-only">Toggle Sidebar</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-64 p-0 bg-background border-r border-border">
+                <SheetContent side="left" className="p-0 w-64 bg-sidebar">
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
-            )
-          )}
+            )}
 
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="size-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center glow-ring">
-              <Sparkles className="size-3.5" />
+            {/* Desktop Sidebar Toggle */}
+            {isLargeScreen && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="size-8 rounded-lg text-muted-foreground hover:text-foreground"
+                title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+              >
+                {isSidebarOpen ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
+                <span className="sr-only">Toggle Sidebar</span>
+              </Button>
+            )}
+
+            <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-muted-foreground">
+              <span className="text-foreground font-semibold font-display">PDF AI RAG Studio</span>
+              <span>/</span>
+              <span className="capitalize">{pathname.replace("/dashboard", "").replace("/", "") || "Workspace"}</span>
             </div>
-            <span className="font-display font-semibold text-sm tracking-tight text-foreground">
-              PDF AI RAG Studio
-            </span>
-          </Link>
-        </div>
+          </div>
 
-        {/* Right: Theme Toggle & Profile Avatar */}
-        <div className="flex items-center gap-2.5">
-          <ModeToggle />
-          <NavbarProfile />
-        </div>
-      </header>
+          <div className="flex items-center gap-3">
+            <ModeToggle />
+            <NavbarProfile />
+          </div>
+        </header>
 
-      {/* ---------------- BODY: SIDEBAR + MAIN CONTENT ---------------- */}
-      <div className="flex flex-1 h-[calc(100vh-56px)] overflow-hidden">
-        {/* Desktop Left Sidebar */}
-        {mounted && isLargeScreen && (
-          <aside
-            className={`transition-all duration-300 ease-in-out border-r border-border/60 bg-background/50 backdrop-blur-sm shrink-0 ${
-              isSidebarOpen ? "w-60" : "w-0 overflow-hidden border-r-0"
-            }`}
-          >
-            <div className="h-full overflow-y-auto">
-              <SidebarContent />
-            </div>
-          </aside>
-        )}
-
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0 bg-background/30">
+        {/* Page View */}
+        <main className="flex-1 overflow-hidden relative">
           {children}
         </main>
       </div>

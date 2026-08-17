@@ -22,12 +22,17 @@ export interface ChatSession {
   messages: ChatMessage[];
 }
 
-const STORAGE_KEY = 'pdf_rag_chat_sessions_v1';
+const getStorageKey = (email?: string): string => {
+  if (!email || email.trim() === '') return 'pdf_rag_chat_sessions_guest';
+  const clean = email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+  return `pdf_rag_chat_sessions_${clean}`;
+};
 
-export const getChatSessions = (): ChatSession[] => {
+export const getChatSessions = (userEmail?: string): ChatSession[] => {
   if (typeof window === 'undefined') return [];
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const key = getStorageKey(userEmail);
+    const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : [];
   } catch (e) {
     console.error('Error reading chat sessions from localStorage:', e);
@@ -35,22 +40,23 @@ export const getChatSessions = (): ChatSession[] => {
   }
 };
 
-export const getChatSession = (id: string): ChatSession | undefined => {
-  const sessions = getChatSessions();
+export const getChatSession = (id: string, userEmail?: string): ChatSession | undefined => {
+  const sessions = getChatSessions(userEmail);
   return sessions.find(s => s.id === id);
 };
 
-export const saveChatSessions = (sessions: ChatSession[]): void => {
+export const saveChatSessions = (sessions: ChatSession[], userEmail?: string): void => {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    const key = getStorageKey(userEmail);
+    localStorage.setItem(key, JSON.stringify(sessions));
   } catch (e) {
     console.error('Error saving chat sessions to localStorage:', e);
   }
 };
 
-export const createChatSession = (title: string = 'New Chat'): ChatSession => {
-  const sessions = getChatSessions();
+export const createChatSession = (title: string = 'New Chat', userEmail?: string): ChatSession => {
+  const sessions = getChatSessions(userEmail);
   const newSession: ChatSession = {
     id: `chat_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
     title,
@@ -67,12 +73,12 @@ export const createChatSession = (title: string = 'New Chat'): ChatSession => {
     ]
   };
 
-  saveChatSessions([newSession, ...sessions]);
+  saveChatSessions([newSession, ...sessions], userEmail);
   return newSession;
 };
 
-export const updateChatSession = (updatedSession: ChatSession): void => {
-  const sessions = getChatSessions();
+export const updateChatSession = (updatedSession: ChatSession, userEmail?: string): void => {
+  const sessions = getChatSessions(userEmail);
   const index = sessions.findIndex(s => s.id === updatedSession.id);
   if (index !== -1) {
     sessions[index] = {
@@ -82,14 +88,13 @@ export const updateChatSession = (updatedSession: ChatSession): void => {
   } else {
     sessions.unshift(updatedSession);
   }
-  saveChatSessions(sessions);
+  saveChatSessions(sessions, userEmail);
 };
 
-export const addMessageToSession = (sessionId: string, message: ChatMessage): ChatSession | undefined => {
-  const session = getChatSession(sessionId);
+export const addMessageToSession = (sessionId: string, message: ChatMessage, userEmail?: string): ChatSession | undefined => {
+  const session = getChatSession(sessionId, userEmail);
   if (!session) return undefined;
 
-  // Auto update title based on first user question if title is "New Chat"
   let newTitle = session.title;
   if (session.title === 'New Chat' && message.type === 'user') {
     newTitle = message.text.length > 30 ? `${message.text.substring(0, 30)}...` : message.text;
@@ -102,15 +107,14 @@ export const addMessageToSession = (sessionId: string, message: ChatMessage): Ch
     updatedAt: new Date().toISOString()
   };
 
-  updateChatSession(updatedSession);
+  updateChatSession(updatedSession, userEmail);
   return updatedSession;
 };
 
-export const addPdfToSession = (sessionId: string, pdf: AttachedPdf): ChatSession | undefined => {
-  const session = getChatSession(sessionId);
+export const addPdfToSession = (sessionId: string, pdf: AttachedPdf, userEmail?: string): ChatSession | undefined => {
+  const session = getChatSession(sessionId, userEmail);
   if (!session) return undefined;
 
-  // Prevent duplicate PDF entries
   const existingIndex = session.attachedPdfs.findIndex(p => p.filename === pdf.filename);
   let updatedPdfs = [...session.attachedPdfs];
   if (existingIndex !== -1) {
@@ -125,13 +129,13 @@ export const addPdfToSession = (sessionId: string, pdf: AttachedPdf): ChatSessio
     updatedAt: new Date().toISOString()
   };
 
-  updateChatSession(updatedSession);
+  updateChatSession(updatedSession, userEmail);
   return updatedSession;
 };
 
-export const deleteChatSession = (id: string): ChatSession[] => {
-  const sessions = getChatSessions();
+export const deleteChatSession = (id: string, userEmail?: string): ChatSession[] => {
+  const sessions = getChatSessions(userEmail);
   const filtered = sessions.filter(s => s.id !== id);
-  saveChatSessions(filtered);
+  saveChatSessions(filtered, userEmail);
   return filtered;
 };
