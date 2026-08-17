@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
 import { 
   ChatSession, ChatMessage, AttachedPdf, 
-  getChatSessions, createChatSession, 
+  getChatSessions, saveChatSessions, createChatSession, 
   addMessageToSession, addPdfToSession, deleteChatSession 
 } from '@/lib/chatStorage'
 
