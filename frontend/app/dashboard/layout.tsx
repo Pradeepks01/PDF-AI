@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMediaQuery } from "react-responsive";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -25,15 +24,21 @@ import { useSession, signOut } from "next-auth/react";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const isLargeScreen = useMediaQuery({ query: "(min-width: 1024px)" });
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     setMounted(true);
-    setIsSidebarOpen(isLargeScreen);
-  }, [isLargeScreen]);
+    const checkScreen = () => {
+      const large = window.innerWidth >= 1024;
+      setIsLargeScreen(large);
+    };
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
