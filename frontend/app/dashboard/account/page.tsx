@@ -96,7 +96,7 @@ export default function AccountSettingsPage() {
   const session = sessionData?.session
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl mx-auto w-full space-y-8">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto w-full space-y-8 pb-20">
       {/* ---------------- PROFILE CARD ---------------- */}
       <div className="surface-panel rounded-2xl p-6 space-y-6 shadow-2xl border border-border/80">
         <h2 className="text-xl font-bold font-display text-foreground">User Profile &amp; Session</h2>
