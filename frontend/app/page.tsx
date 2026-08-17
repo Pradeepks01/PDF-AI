@@ -1,17 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import {
   Sparkles,
   ArrowRight,
-  Sun,
-  Moon,
   Zap,
   ShieldCheck,
   Layers,
-  ScanSearch,
   FileText,
   Globe,
   MessagesSquare,
@@ -23,21 +18,9 @@ import {
   CheckCircle2,
   Flame,
 } from "lucide-react";
+import { ModeToggle } from "@/components/ModeToggle";
 
 export default function HomePage() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = mounted ? resolvedTheme === "dark" || theme === "dark" : true;
-
-  const toggleTheme = () => {
-    setTheme(isDark ? "light" : "dark");
-  };
-
   const featureCards = [
     {
       icon: FileText,
@@ -147,7 +130,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden selection:bg-primary/25 selection:text-foreground animate-in fade-in duration-300">
+    <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/25 selection:text-foreground">
       {/* ---------------- 1. AMBIENT BACKGROUND GLOWS ---------------- */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 grid-backdrop opacity-40" />
@@ -201,22 +184,7 @@ export default function HomePage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="size-9 rounded-xl border border-border/70 bg-card/60 hover:bg-card text-foreground flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Toggle theme"
-              type="button"
-            >
-              {mounted ? (
-                isDark ? (
-                  <Sun className="size-4.5 text-primary" />
-                ) : (
-                  <Moon className="size-4.5 text-foreground" />
-                )
-              ) : (
-                <Sun className="size-4.5 text-primary" />
-              )}
-            </button>
+            <ModeToggle />
 
             <Link href="/dashboard" className="hidden sm:inline-flex">
               <button
