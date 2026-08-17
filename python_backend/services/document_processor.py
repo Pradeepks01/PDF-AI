@@ -42,38 +42,44 @@ class DocumentProcessor:
 
     def process_web_url(self, url: str) -> List[Dict[str, Any]]:
         """Scrape web page, extract clean text, and split into chunks."""
+        cleaned_url = url.strip()
+        if not cleaned_url.startswith(("http://", "https://")):
+            cleaned_url = f"https://{cleaned_url}"
+
         extracted_text = None
 
         # 1. Try trafilatura fetch
         try:
-            downloaded = trafilatura.fetch_url(url)
+            downloaded = trafilatura.fetch_url(cleaned_url)
             if downloaded:
                 extracted_text = trafilatura.extract(downloaded, include_links=True, include_images=False)
-        except Exception:
+        except Exception as tf_err:
+            print(f"[WARN] Trafilatura fetch error for {cleaned_url}: {tf_err}")
             extracted_text = None
 
         # 2. Fallback to requests with browser User-Agent
         if not extracted_text:
             try:
                 headers = {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.5",
                 }
-                resp = requests.get(url, headers=headers, timeout=12)
-                resp.raise_for_status()
-                
-                # Attempt trafilatura parse on HTML
-                extracted_text = trafilatura.extract(resp.text)
-                if not extracted_text:
-                    # Fallback to BeautifulSoup
-                    soup = BeautifulSoup(resp.text, "html.parser")
-                    for s in soup(["script", "style", "nav", "footer"]):
-                        s.extract()
-                    extracted_text = soup.get_text(separator="\n", strip=True)
+                resp = requests.get(cleaned_url, headers=headers, timeout=15, verify=False)
+                if resp.status_code == 200 and resp.text:
+                    # Attempt trafilatura parse on HTML
+                    extracted_text = trafilatura.extract(resp.text)
+                    if not extracted_text:
+                        # Fallback to BeautifulSoup
+                        soup = BeautifulSoup(resp.text, "html.parser")
+                        for s in soup(["script", "style", "nav", "footer", "header", "aside", "noscript", "svg"]):
+                            s.extract()
+                        extracted_text = soup.get_text(separator="\n", strip=True)
             except Exception as req_err:
-                print(f"[WARN] Web fetch failed for {url}: {req_err}")
+                print(f"[WARN] Requests fetch failed for {cleaned_url}: {req_err}")
 
         if not extracted_text or not extracted_text.strip():
-            raise ValueError(f"Could not extract readable text from URL: {url}")
+            raise ValueError(f"Could not extract readable text from URL: {cleaned_url}. The page might require login or JavaScript rendering.")
 
         chunks = self.splitter.split_text(extracted_text)
         chunks_with_metadata = []
@@ -82,7 +88,7 @@ class DocumentProcessor:
             chunks_with_metadata.append({
                 "text": chunk,
                 "metadata": {
-                    "source_url": url,
+                    "source_url": cleaned_url,
                     "chunk_index": idx,
                     "source": "web"
                 }

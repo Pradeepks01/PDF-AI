@@ -166,8 +166,8 @@ async def upload_pdf(
 @app.post("/api/web/crawl")
 async def crawl_web_url(
     payload: WebCrawlRequest,
-    x_gemini_api_key: Optional[str] = Header(None),
-    x_pinecone_api_key: Optional[str] = Header(None)
+    x_gemini_api_key: Optional[str] = Header(None, alias="x-gemini-api-key"),
+    x_pinecone_api_key: Optional[str] = Header(None, alias="x-pinecone-api-key")
 ):
     """Scrape website, clean markdown text, split chunks, embed, and upsert to Pinecone."""
     try:
@@ -196,6 +196,8 @@ async def crawl_web_url(
                 "vectors_upserted": vector_count
             }
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"[ERROR] Crawl Exception: {e}")
         traceback.print_exc()
