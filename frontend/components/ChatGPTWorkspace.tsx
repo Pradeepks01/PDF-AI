@@ -395,7 +395,7 @@ export default function ChatGPTWorkspace() {
   )
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] w-full overflow-hidden bg-background text-foreground relative">
+    <div className="flex h-full w-full overflow-hidden bg-background text-foreground relative">
       
       {/* ---------------- LEFT CHAT HISTORY SIDEBAR ---------------- */}
       <div 
