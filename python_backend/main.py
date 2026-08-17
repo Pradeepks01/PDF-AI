@@ -85,46 +85,82 @@ def resolve_namespace(cid: str) -> str:
 
 @app.post("/api/upload")
 async def upload_pdf(
-    file: UploadFile = File(...),
+    files: Optional[List[UploadFile]] = File(None),
+    file: Optional[UploadFile] = File(None),
     collection_id: str = Form(...),
-    x_gemini_api_key: Optional[str] = Header(None),
-    x_pinecone_api_key: Optional[str] = Header(None)
+    x_gemini_api_key: Optional[str] = Header(None, alias="x-gemini-api-key"),
+    x_pinecone_api_key: Optional[str] = Header(None, alias="x-pinecone-api-key")
 ):
-    """Upload PDF, parse text, split chunks, embed, and upsert to Pinecone."""
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
+    """Upload single or multiple PDFs, parse text, split chunks, embed, and upsert to Pinecone."""
+    upload_list: List[UploadFile] = []
+    if files:
+        upload_list.extend(files)
+    if file:
+        upload_list.append(file)
 
-    try:
-        content = await file.read()
-        chunks = doc_processor.process_pdf(content, file.filename)
+    if not upload_list:
+        raise HTTPException(status_code=400, detail="No PDF files provided in upload request.")
 
-        if not chunks:
-            raise HTTPException(status_code=400, detail="Could not extract readable text from PDF.")
+    namespace = resolve_namespace(collection_id)
+    results = []
+    total_vectors = 0
 
-        namespace = resolve_namespace(collection_id)
-        vector_count = pinecone_service.upsert_chunks(
-            namespace=namespace,
-            chunks_with_metadata=chunks,
-            ai_service=ai_service,
-            custom_gemini_key=x_gemini_api_key,
-            custom_pinecone_key=x_pinecone_api_key
-        )
+    for upload_item in upload_list:
+        if not upload_item.filename.lower().endswith(".pdf"):
+            results.append({
+                "filename": upload_item.filename,
+                "status": "error",
+                "detail": "Only PDF files are supported."
+            })
+            continue
 
-        return {
-            "statusCode": 200,
-            "message": "PDF uploaded, processed, and vector indexed successfully into Pinecone",
-            "data": {
-                "filename": file.filename,
+        try:
+            content = await upload_item.read()
+            chunks = doc_processor.process_pdf(content, upload_item.filename)
+
+            if not chunks:
+                results.append({
+                    "filename": upload_item.filename,
+                    "status": "error",
+                    "detail": "Could not extract readable text from PDF."
+                })
+                continue
+
+            vector_count = pinecone_service.upsert_chunks(
+                namespace=namespace,
+                chunks_with_metadata=chunks,
+                ai_service=ai_service,
+                custom_gemini_key=x_gemini_api_key,
+                custom_pinecone_key=x_pinecone_api_key
+            )
+            total_vectors += vector_count
+
+            results.append({
+                "filename": upload_item.filename,
+                "status": "success",
                 "collection_id": collection_id,
                 "namespace": namespace,
                 "chunks_count": len(chunks),
                 "vectors_upserted": vector_count
-            }
-        }
-    except Exception as e:
-        print(f"[ERROR] Upload Exception: {e}")
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+            })
+        except Exception as e:
+            print(f"[ERROR] Failed to process {upload_item.filename}: {e}")
+            traceback.print_exc()
+            results.append({
+                "filename": upload_item.filename,
+                "status": "error",
+                "detail": str(e)
+            })
+
+    first_success = next((r for r in results if r.get("status") == "success"), results[0])
+
+    return {
+        "statusCode": 200,
+        "message": f"Processed {len(upload_list)} PDF document(s)",
+        "results": results,
+        "data": first_success,
+        "total_vectors_upserted": total_vectors
+    }
 
 
 @app.post("/api/web/crawl")
