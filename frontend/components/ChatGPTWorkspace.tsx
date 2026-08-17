@@ -117,7 +117,15 @@ export default function ChatGPTWorkspace() {
     }
   }, [userEmail])
 
-  const currentSession = sessions.find(s => s.id === activeSessionId) || sessions[0]
+  const fallbackSession: ChatSession = {
+    id: 'default',
+    title: 'New Chat',
+    createdAt: new Date().toISOString(),
+    messages: [],
+    attachedPdfs: []
+  }
+
+  const currentSession = sessions.find(s => s.id === activeSessionId) || sessions[0] || fallbackSession
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -608,7 +616,7 @@ export default function ChatGPTWorkspace() {
               )}
 
               {/* Message List */}
-              {currentSession?.messages
+              {(currentSession?.messages || [])
                 .filter((msg) => msg.text && msg.text !== '__GENERATING__')
                 .map((msg) => (
                 <div 
