@@ -71,7 +71,7 @@ export const authOptions: NextAuthOptions = {
         redirect({ url, baseUrl }: any) {
             if (url.startsWith("/")) return `${baseUrl}${url}`;
             else if (new URL(url).origin === baseUrl) return url;
-            return `${baseUrl}/dashboard/account`;
+            return `${baseUrl}/dashboard`;
         }
     },
     secret: process.env.NEXTAUTH_SECRET || "default_secret_key_1234567890"
