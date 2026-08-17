@@ -32,7 +32,7 @@ export function ModeToggle() {
           <Moon className="size-4 text-foreground" />
         )
       ) : (
-        <Sun className="size-4 text-primary" />
+        <span className="size-4 block" />
       )}
     </button>
   )
