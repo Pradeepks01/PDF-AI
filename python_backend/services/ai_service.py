@@ -27,11 +27,13 @@ def is_retryable_error(error_str: str) -> bool:
     return any(k.lower() in error_str.lower() for k in retry_keywords)
 
 
+from fastapi import HTTPException
+
 class AIService:
     def _get_client(self, custom_api_key: str = None) -> genai.Client:
         api_key = custom_api_key.strip() if (custom_api_key and custom_api_key.strip()) else settings.GEMINI_API_KEY
         if not api_key:
-            raise ValueError("Gemini API key is required. Please set GEMINI_API_KEY in environment or provide it in header.")
+            raise HTTPException(status_code=400, detail="Google Gemini API Key is missing. Please enter your Gemini API Key in Settings or the API Vault.")
         return genai.Client(api_key=api_key)
 
     def generate_embedding(self, text: str, custom_api_key: str = None) -> List[float]:

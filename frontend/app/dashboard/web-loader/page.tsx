@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Globe, MessageSquare, ExternalLink, Loader2, Sparkles, Database } from 'lucide-react'
+import { Globe, MessageSquare, ExternalLink, Loader2, Sparkles, Database, KeyRound, AlertTriangle } from 'lucide-react'
 import pythonAxios from '@/lib/python-axios'
 import { toast } from 'sonner'
 import ChatComponent from '@/components/ChatComponent'
@@ -13,13 +13,31 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 const WebPageLoader = () => {
   const [inputUrl, setInputUrl] = useState('')
   const [isIndexing, setIsIndexing] = useState(false)
   const [activeChatNamespace, setActiveChatNamespace] = useState<string | null>(null)
   const [activeChatTitle, setActiveChatTitle] = useState<string>('')
+  const [hasApiKey, setHasApiKey] = useState(true)
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false)
+  const [geminiKeyInput, setGeminiKeyInput] = useState('')
+  const [pineconeKeyInput, setPineconeKeyInput] = useState('')
+
+  // Check API keys on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const gKey = localStorage.getItem('custom_gemini_key') || ''
+      const pKey = localStorage.getItem('custom_pinecone_key') || ''
+      setGeminiKeyInput(gKey)
+      setPineconeKeyInput(pKey)
+      const valid = Boolean(gKey.trim() && pKey.trim())
+      setHasApiKey(valid)
+    }
+  }, [])
 
   // Local storage cache for indexed web pages
   const [indexedPages, setIndexedPages] = useState<Array<{ url: string; namespace: string; chunks: number; indexedAt: string }>>(() => {
@@ -36,13 +54,39 @@ const WebPageLoader = () => {
     return []
   })
 
+  const handleSaveKeys = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!geminiKeyInput.trim()) {
+      toast.error('Google Gemini API Key is required.')
+      return
+    }
+    if (!pineconeKeyInput.trim()) {
+      toast.error('Pinecone API Key (pcsk_...) is required.')
+      return
+    }
+
+    localStorage.setItem('custom_gemini_key', geminiKeyInput.trim())
+    localStorage.setItem('custom_pinecone_key', pineconeKeyInput.trim())
+    setHasApiKey(true)
+    setShowApiKeyModal(false)
+    toast.success('API Keys configured in local vault!')
+  }
+
   const handleIndexUrl = async () => {
     if (!inputUrl) {
       toast.error('Please enter a valid website URL')
       return
     }
 
+    if (!hasApiKey) {
+      setShowApiKeyModal(true)
+      toast.error('Please configure your Gemini and Pinecone API keys first.')
+      return
+    }
+
     setIsIndexing(true)
+    const toastId = toast.loading('Crawling web page and vectorizing embeddings...')
+
     try {
       const urlId = `web_${Date.now()}`
       const res = await pythonAxios.post('/api/web/crawl', {
@@ -63,12 +107,14 @@ const WebPageLoader = () => {
         localStorage.setItem('pdf_rag_indexed_web_pages', JSON.stringify(updated))
       }
 
-      toast.success('Website parsed, embedded, and indexed into Pinecone!')
+      toast.success('Website parsed, embedded, and indexed into Pinecone!', { id: toastId })
       setActiveChatTitle(inputUrl)
       setActiveChatNamespace(res.data.data.namespace)
       setInputUrl('')
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || 'Failed to crawl and index website URL')
+      console.error(err)
+      const msg = err?.response?.data?.detail || err?.message || 'Failed to crawl and index website URL'
+      toast.error(msg, { id: toastId })
     } finally {
       setIsIndexing(false)
     }
@@ -87,7 +133,36 @@ const WebPageLoader = () => {
             <p className="text-xs text-muted-foreground">Scrape online articles, parse markdown, and index 768-dim vector embeddings into Pinecone</p>
           </div>
         </div>
+
+        <button
+          onClick={() => setShowApiKeyModal(true)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border transition-all cursor-pointer ${
+            hasApiKey 
+              ? 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/20' 
+              : 'border-amber-500/50 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20'
+          }`}
+        >
+          <KeyRound className="size-3.5" />
+          <span>{hasApiKey ? 'Keys Connected' : 'Setup API Keys'}</span>
+        </button>
       </div>
+
+      {/* Warning if API key missing */}
+      {!hasApiKey && (
+        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-4 shrink-0" />
+            <span>Pinecone &amp; Google Gemini keys are required to crawl and vectorize web pages.</span>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setShowApiKeyModal(true)}
+            className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs h-7 rounded-lg shrink-0 cursor-pointer"
+          >
+            Configure Now
+          </Button>
+        </div>
+      )}
 
       {/* Index Input Card */}
       <Card className="surface-panel border-border/80 rounded-2xl shadow-xl">
@@ -200,6 +275,64 @@ const WebPageLoader = () => {
           <div className="flex-1 overflow-hidden">
             {activeChatNamespace && <ChatComponent id={activeChatNamespace} />}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* API Key BYOK Modal */}
+      <Dialog open={showApiKeyModal} onOpenChange={setShowApiKeyModal}>
+        <DialogContent className="max-w-md p-6 rounded-3xl bg-card border-border shadow-2xl">
+          <DialogHeader className="space-y-2">
+            <div className="size-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center glow-ring mb-1">
+              <KeyRound className="size-5" />
+            </div>
+            <DialogTitle className="text-lg font-display font-bold">Configure API Keys (BYOK)</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Provide your personal Pinecone and Gemini keys to crawl web pages and generate vector embeddings.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveKeys} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Google Gemini API Key (Required)</Label>
+              <Input
+                type="password"
+                placeholder="AIzaSy..."
+                value={geminiKeyInput}
+                onChange={(e) => setGeminiKeyInput(e.target.value)}
+                className="text-xs rounded-xl"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Pinecone API Key (Required for vector storage)</Label>
+              <Input
+                type="password"
+                placeholder="pcsk_..."
+                value={pineconeKeyInput}
+                onChange={(e) => setPineconeKeyInput(e.target.value)}
+                className="text-xs rounded-xl"
+                required
+              />
+            </div>
+
+            <div className="pt-2 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowApiKeyModal(false)}
+                className="text-xs rounded-xl"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-primary text-primary-foreground font-semibold text-xs rounded-xl glow-ring cursor-pointer"
+              >
+                Save Keys
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

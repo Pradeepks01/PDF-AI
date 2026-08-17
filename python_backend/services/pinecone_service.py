@@ -3,6 +3,8 @@ from pinecone import Pinecone, ServerlessSpec
 from config import settings
 import traceback
 
+from fastapi import HTTPException
+
 class PineconeService:
     def __init__(self):
         self._pc = None
@@ -11,7 +13,7 @@ class PineconeService:
     def _get_index(self, custom_api_key: str = None):
         api_key = custom_api_key.strip() if (custom_api_key and custom_api_key.strip()) else settings.PINECONE_API_KEY
         if not api_key:
-            raise ValueError("PINECONE_API_KEY is required. Please set PINECONE_API_KEY in environment or settings.")
+            raise HTTPException(status_code=400, detail="Pinecone API Key is missing. Please enter your Pinecone API Key (pcsk_...) in Settings or the API Vault.")
 
         if self._index and not custom_api_key:
             return self._index
