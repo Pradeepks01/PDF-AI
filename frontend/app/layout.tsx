@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-primary/25 selection:text-foreground`}
+        className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-primary/25 selection:text-foreground min-h-screen`}
       >
         <Providers>
           <ThemeProvider
@@ -46,7 +46,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            <Toaster />
+            <Toaster richColors position="top-right" />
           </ThemeProvider>
         </Providers>
       </body>
