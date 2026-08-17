@@ -33,7 +33,13 @@ export const getChatSessions = (userEmail?: string): ChatSession[] => {
   try {
     const key = getStorageKey(userEmail);
     const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed: ChatSession[] = JSON.parse(data);
+    // Sanitize sessions by removing transient generating placeholders
+    return parsed.map(sess => ({
+      ...sess,
+      messages: (sess.messages || []).filter(m => m.text !== '__GENERATING__')
+    }));
   } catch (e) {
     console.error('Error reading chat sessions from localStorage:', e);
     return [];

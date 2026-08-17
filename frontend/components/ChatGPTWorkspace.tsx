@@ -257,52 +257,37 @@ export default function ChatGPTWorkspace() {
         text: userQuery,
         timestamp: new Date().toISOString()
       }
-      const updatedAfterUser = addMessageToSession(currentSession.id, userMsg, userEmail)
-      if (updatedAfterUser) setSessions(getChatSessions(userEmail))
-
-      // Add Bot Thinking Message
-      const thinkingMsg: ChatMessage = {
-        id: `msg_thinking_${Date.now()}`,
-        type: 'bot',
-        text: '__GENERATING__',
-        timestamp: new Date().toISOString()
-      }
-      addMessageToSession(currentSession.id, thinkingMsg, userEmail)
+      addMessageToSession(currentSession.id, userMsg, userEmail)
       setSessions(getChatSessions(userEmail))
     },
     onSuccess: (data) => {
       if (!currentSession) return
       const aiResponseText = data.response
 
-      // Replace thinking message with actual response & sources
-      const latestSessions = getChatSessions(userEmail)
-      const sess = latestSessions.find(s => s.id === currentSession.id)
-      if (sess) {
-        sess.messages[sess.messages.length - 1] = {
-          id: `msg_bot_${Date.now()}`,
-          type: 'bot',
-          text: aiResponseText,
-          timestamp: new Date().toISOString(),
-          sources: data.sources || []
-        }
-        setSessions(latestSessions)
+      // Add Bot Message with Sources
+      const botMsg: ChatMessage = {
+        id: `msg_bot_${Date.now()}`,
+        type: 'bot',
+        text: aiResponseText,
+        timestamp: new Date().toISOString(),
+        sources: data.sources || []
       }
+      addMessageToSession(currentSession.id, botMsg, userEmail)
+      setSessions(getChatSessions(userEmail))
     },
     onError: (err: any) => {
       console.error(err)
       toast.error(err?.response?.data?.detail || 'Failed to query Pinecone & Gemini')
       
-      // Replace thinking message with helpful error
-      const latestSessions = getChatSessions(userEmail)
-      const sess = latestSessions.find(s => s.id === currentSession.id)
-      if (sess) {
-        sess.messages[sess.messages.length - 1] = {
+      if (currentSession) {
+        const errorMsg: ChatMessage = {
           id: `msg_bot_err_${Date.now()}`,
           type: 'bot',
-          text: `⚠️ **Unable to process query.** ${err?.response?.data?.detail || 'Please verify your Google Gemini API Key and Pinecone index.'}`,
+          text: `⚠️ **Unable to process query.** ${err?.response?.data?.detail || 'Please verify your Google Gemini API Key and Pinecone index in Settings.'}`,
           timestamp: new Date().toISOString()
         }
-        setSessions(latestSessions)
+        addMessageToSession(currentSession.id, errorMsg, userEmail)
+        setSessions(getChatSessions(userEmail))
       }
     }
   })
@@ -693,6 +678,22 @@ export default function ChatGPTWorkspace() {
                   </div>
                 </div>
               ))}
+
+              {/* Active Dynamic Thinking Bubble */}
+              {chatMutation.isPending && (
+                <div className="flex gap-3 text-sm justify-start animate-in fade-in duration-200">
+                  <div className="size-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                    <Sparkles className="size-4" />
+                  </div>
+                  <div className="max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 bg-card border border-border/80 text-card-foreground rounded-tl-none shadow-xs">
+                    <div className="flex items-center gap-3 py-1 text-muted-foreground text-xs font-mono">
+                      <Loader2 className="size-4 animate-spin text-primary" />
+                      <span>Searching Pinecone &amp; generating grounded answer...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
