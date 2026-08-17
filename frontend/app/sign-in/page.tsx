@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { motion } from "framer-motion";
 import {
   Sparkles,
   Loader2,
@@ -132,18 +131,16 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative flex flex-col justify-between overflow-x-hidden selection:bg-primary/25 selection:text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative flex flex-col justify-between overflow-x-hidden selection:bg-primary/25 selection:text-foreground animate-in fade-in duration-300">
       {/* ---------------- 1. AMBIENT BACKGROUND GLOWS ---------------- */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 grid-backdrop opacity-40" />
 
-        {/* Center-top cyan glow */}
         <div
           className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full blur-[130px] opacity-20 pointer-events-none"
           style={{ background: "var(--primary)" }}
         />
 
-        {/* Accent glow */}
         <div
           className="absolute bottom-[10%] right-[-5%] w-[26rem] h-[26rem] rounded-full blur-[100px] opacity-20 pointer-events-none"
           style={{ background: "var(--accent)" }}
@@ -170,7 +167,6 @@ export default function SignInPage() {
             <span>Back to home</span>
           </Link>
 
-          {/* Theme Switcher Toggle */}
           <button
             onClick={toggleTheme}
             className="size-9 rounded-xl border border-border/70 bg-card/60 hover:bg-card text-foreground flex items-center justify-center transition-colors cursor-pointer"
@@ -192,12 +188,7 @@ export default function SignInPage() {
 
       {/* ---------------- 3. MAIN SIGN-IN CONTAINER ---------------- */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md surface-panel rounded-3xl p-6 sm:p-8 shadow-2xl border border-border/80 relative"
-        >
+        <div className="w-full max-w-md surface-panel rounded-3xl p-6 sm:p-8 shadow-2xl border border-border/80 relative animate-in fade-in zoom-in-95 duration-400">
           {/* Card Header */}
           <div className="text-center space-y-2 mb-6">
             <div className="mx-auto size-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center glow-ring mb-3">
@@ -393,7 +384,7 @@ export default function SignInPage() {
             <ShieldCheck className="size-3.5 text-primary" />
             <span>Google OAuth 2.0 &amp; Encrypted Session Auth</span>
           </div>
-        </motion.div>
+        </div>
       </main>
 
       {/* ---------------- 4. BOTTOM FOOTER ---------------- */}
