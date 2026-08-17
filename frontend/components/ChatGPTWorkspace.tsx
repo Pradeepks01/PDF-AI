@@ -66,16 +66,18 @@ export default function ChatGPTWorkspace() {
   useEffect(() => {
     let loadedSessions = getChatSessions(userEmail)
     
-    // Normalize any legacy welcome messages
+    // Purge any __GENERATING__ placeholder messages completely from state and storage
     loadedSessions = loadedSessions.map(s => ({
       ...s,
-      messages: s.messages.map(m => {
+      messages: s.messages.filter(m => m.text && m.text !== '__GENERATING__').map(m => {
         if (m.type === 'bot' && (m.text.includes('Multi-PDF ChatGPT RAG Assistant') || m.text.includes('Attach one or more PDF documents to this chat'))) {
           return { ...m, text: 'Hello! How can I help you today? Upload or attach PDF documents to ask questions, extract insights, and analyze content.' }
         }
         return m
       })
     }))
+
+    saveChatSessions(loadedSessions, userEmail)
 
     if (loadedSessions.length === 0) {
       const defaultSession = createChatSession('Welcome Chat', userEmail)
@@ -606,7 +608,9 @@ export default function ChatGPTWorkspace() {
               )}
 
               {/* Message List */}
-              {currentSession?.messages.map((msg) => (
+              {currentSession?.messages
+                .filter((msg) => msg.text && msg.text !== '__GENERATING__')
+                .map((msg) => (
                 <div 
                   key={msg.id}
                   className={`flex gap-3 text-sm ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -626,16 +630,9 @@ export default function ChatGPTWorkspace() {
                         : 'bg-card border border-border/80 text-card-foreground rounded-tl-none shadow-xs'
                     }`}
                   >
-                    {msg.text === '__GENERATING__' ? (
-                      <div className="flex items-center gap-3 py-1 text-muted-foreground text-xs font-mono">
-                        <Loader2 className="size-4 animate-spin text-primary" />
-                        <span>Searching Pinecone &amp; generating grounded answer...</span>
-                      </div>
-                    ) : (
-                      <div className="prose dark:prose-invert prose-sm max-w-none text-xs sm:text-sm leading-relaxed">
-                        <ReactMarkdown>{msg.text}</ReactMarkdown>
-                      </div>
-                    )}
+                    <div className="prose dark:prose-invert prose-sm max-w-none text-xs sm:text-sm leading-relaxed">
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    </div>
 
                     {/* Sources Accordion */}
                     {msg.sources && msg.sources.length > 0 && (
