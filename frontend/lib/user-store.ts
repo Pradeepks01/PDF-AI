@@ -131,3 +131,25 @@ export function authenticateUser(email: string, password: string, isRegistering:
 
   return user;
 }
+
+// Reset password for an existing user
+export function resetUserPassword(email: string, newPassword: string): StoredUser {
+  const cleanEmail = email.trim().toLowerCase();
+  const users = getAllUsers();
+  const index = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+
+  if (index === -1) {
+    throw new Error("No account found with this email. Please check your email or register.");
+  }
+
+  if (newPassword.length < 6) {
+    throw new Error("New password must be at least 6 characters long.");
+  }
+
+  const { hash, salt } = hashPassword(newPassword);
+  users[index].passwordHash = hash;
+  users[index].salt = salt;
+
+  saveUsers(users);
+  return users[index];
+}

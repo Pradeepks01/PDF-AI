@@ -15,7 +15,6 @@ import {
   Moon,
   ChevronLeft,
   CheckCircle2,
-  ArrowRight,
 } from "lucide-react";
 import { LogoIcon } from "@/components/LogoIcon";
 import { toast } from "sonner";
@@ -37,11 +36,12 @@ export default function SignInPage() {
   // Auth mode: 'signin', 'signup', or 'forgot'
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [showPassword, setShowPassword] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Form states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -55,24 +55,56 @@ export default function SignInPage() {
     signIn("google", { callbackUrl: targetCallback });
   };
 
-  // Handle Submit (Sign In, Sign Up, or Forgot Password)
+  // Handle Submit (Sign In, Sign Up, or Reset Password)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 1. Password Reset Mode
     if (mode === "forgot") {
       if (!email) {
-        toast.error("Please enter your registered email address");
+        toast.error("Please enter your registered email address.");
         return;
       }
+      if (!password) {
+        toast.error("Please enter a new password.");
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("New password must be at least 6 characters long.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match. Please re-enter.");
+        return;
+      }
+
       setLoading(true);
-      setTimeout(() => {
+      try {
+        const res = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, newPassword: password }),
+        });
+        const data = await res.json();
         setLoading(false);
-        setResetSent(true);
-        toast.success(`Password reset link sent to ${email}`);
-      }, 900);
+
+        if (!res.ok || data.error) {
+          toast.error(data.error || "Failed to reset password.");
+        } else {
+          toast.success("Password reset successfully! You can now sign in.");
+          setPassword("");
+          setConfirmPassword("");
+          setMode("signin");
+        }
+      } catch (err: any) {
+        setLoading(false);
+        console.error(err);
+        toast.error("Error resetting password. Please try again.");
+      }
       return;
     }
 
+    // 2. Sign In / Sign Up
     if (!email || !password) {
       toast.error("Please enter your email and password");
       return;
@@ -200,7 +232,7 @@ export default function SignInPage() {
                   ? "Sign in to access your PDF AI account"
                   : mode === "signup"
                   ? "Sign up to start chatting with your PDFs & web"
-                  : "Enter your email to receive a password reset link"}
+                  : "Enter your registered email and choose a new password"}
               </p>
             </div>
 
@@ -249,105 +281,110 @@ export default function SignInPage() {
             )}
 
             {/* Form */}
-            {mode === "forgot" && resetSent ? (
-              <div className="text-center py-4 space-y-4">
-                <div className="mx-auto size-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                  <CheckCircle2 className="size-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-slate-900 text-base">Check your email</h3>
-                  <p className="text-xs text-slate-500">
-                    We sent a password reset link to <strong>{email}</strong>.
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setResetSent(false);
-                    setMode("signin");
-                  }}
-                  className="w-full bg-[#4338ca] hover:bg-[#3730a3] text-white font-semibold py-2.5 rounded-xl transition-all shadow-md text-sm mt-2 cursor-pointer"
-                >
-                  Back to Sign In
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === "signup" && (
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-800">Full Name</Label>
-                    <Input
-                      type="text"
-                      placeholder="Alex Morgan"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="rounded-xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm py-2.5 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:border-transparent shadow-2xs"
-                      required
-                    />
-                  </div>
-                )}
-
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === "signup" && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-800">Email Address</Label>
+                  <Label className="text-xs font-semibold text-slate-800">Full Name</Label>
                   <Input
-                    type="email"
-                    placeholder="email@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="text"
+                    placeholder="Alex Morgan"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     className="rounded-xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm py-2.5 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:border-transparent shadow-2xs"
                     required
                   />
                 </div>
+              )}
 
-                {mode !== "forgot" && (
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-800">Password</Label>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="rounded-xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm py-2.5 pr-10 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:border-transparent shadow-2xs"
-                        required
-                        minLength={6}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="size-4" />
-                        ) : (
-                          <Eye className="size-4" />
-                        )}
-                      </button>
-                    </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-800">Email Address</Label>
+                <Input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="rounded-xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm py-2.5 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:border-transparent shadow-2xs"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-800">
+                  {mode === "forgot" ? "New Password" : "Password"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder={mode === "forgot" ? "New password (min 6 chars)" : "••••••••••"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="rounded-xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm py-2.5 pr-10 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:border-transparent shadow-2xs"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {mode === "forgot" && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-slate-800">Confirm New Password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="rounded-xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm py-2.5 pr-10 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:border-transparent shadow-2xs"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#4338ca] hover:bg-[#3730a3] text-white font-semibold py-3 rounded-xl transition-all shadow-md text-sm mt-3 cursor-pointer"
-                >
-                  {loading ? (
-                    <Loader2 className="size-4.5 animate-spin" />
-                  ) : (
-                    <span>
-                      {mode === "signin"
-                        ? "Sign In"
-                        : mode === "signup"
-                        ? "Create Account"
-                        : "Send Reset Link"}
-                    </span>
-                  )}
-                </Button>
-              </form>
-            )}
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#4338ca] hover:bg-[#3730a3] text-white font-semibold py-3 rounded-xl transition-all shadow-md text-sm mt-3 cursor-pointer"
+              >
+                {loading ? (
+                  <Loader2 className="size-4.5 animate-spin" />
+                ) : (
+                  <span>
+                    {mode === "signin"
+                      ? "Sign In"
+                      : mode === "signup"
+                      ? "Create Account"
+                      : "Reset Password"}
+                  </span>
+                )}
+              </Button>
+            </form>
 
             {/* Bottom Links */}
             <div className="mt-6 flex items-center justify-between gap-2 text-xs">
@@ -355,7 +392,11 @@ export default function SignInPage() {
                 <>
                   <button
                     type="button"
-                    onClick={() => setMode("forgot")}
+                    onClick={() => {
+                      setPassword("");
+                      setConfirmPassword("");
+                      setMode("forgot");
+                    }}
                     className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline transition-colors cursor-pointer"
                   >
                     Forgot Password?
@@ -365,7 +406,11 @@ export default function SignInPage() {
                     Don&apos;t have an account?{" "}
                     <button
                       type="button"
-                      onClick={() => setMode("signup")}
+                      onClick={() => {
+                        setPassword("");
+                        setConfirmPassword("");
+                        setMode("signup");
+                      }}
                       className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors cursor-pointer ml-1"
                     >
                       Sign Up
@@ -377,7 +422,11 @@ export default function SignInPage() {
                   Already have an account?{" "}
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
+                    onClick={() => {
+                      setPassword("");
+                      setConfirmPassword("");
+                      setMode("signin");
+                    }}
                     className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors cursor-pointer ml-1"
                   >
                     Sign In
@@ -388,7 +437,11 @@ export default function SignInPage() {
                   Remember your password?{" "}
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
+                    onClick={() => {
+                      setPassword("");
+                      setConfirmPassword("");
+                      setMode("signin");
+                    }}
                     className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors cursor-pointer ml-1"
                   >
                     Sign In
