@@ -1,10 +1,11 @@
-"use client";
+'use client'
 
-import Link from "next/link";
+import React from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   Sparkles,
   ArrowRight,
-  Zap,
   ShieldCheck,
   Layers,
   FileText,
@@ -13,165 +14,155 @@ import {
   KeyRound,
   Mic,
   Download,
-  Cpu,
   Database,
   CheckCircle2,
-  Flame,
-} from "lucide-react";
-import { ModeToggle } from "@/components/ModeToggle";
+  FileStack,
+  Scissors,
+  Boxes,
+  Search,
+  ListFilter,
+  Shuffle,
+  Gauge,
+  BadgeCheck,
+  Highlighter,
+  PanelsTopLeft,
+  Sun,
+  Moon,
+  ExternalLink,
+  ChevronRight
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { ModeToggle } from '@/components/ModeToggle'
 
-export default function HomePage() {
-  const featureCards = [
+export default function LandingPage() {
+  // ---------------- 1. Features Data ----------------
+  const features = [
     {
       icon: FileText,
-      badge: "High-Throughput",
-      title: "Multi-PDF Vector Collections",
+      badge: 'High-Throughput',
+      title: 'Multi-PDF Vector Collections',
       description:
-        "Upload research reports, financial audits, or contracts. Documents are parsed, split into optimal semantic chunks, and embedded in parallel batches into isolated Pinecone namespaces.",
-      cta: "Open workspace",
-      href: "/dashboard",
+        'Upload research papers, financial audits, or contracts. Documents are parsed, split into optimal semantic chunks, and embedded in parallel batches into isolated Pinecone namespaces.',
+      cta: 'Open workspace',
+      href: '/dashboard',
     },
     {
       icon: Globe,
-      badge: "Live Ingestion",
-      title: "Real-Time Web Crawler",
+      badge: 'Live Ingestion',
+      title: 'Real-Time Web Crawler',
       description:
-        "Point the crawler at any documentation URL or website. Content is scraped with BeautifulSoup & Trafilatura, converted to clean markdown, and vector indexed alongside your PDFs.",
-      cta: "Open web crawler",
-      href: "/dashboard/web-loader",
+        'Point the crawler at any documentation URL or website. Content is scraped with BeautifulSoup & Trafilatura, converted to clean markdown, and vector indexed alongside your PDFs.',
+      cta: 'Open web crawler',
+      href: '/dashboard/web-loader',
     },
     {
       icon: MessagesSquare,
-      badge: "Zero Hallucination",
-      title: "SOTA 6-Stage RAG Chat",
+      badge: 'Zero Hallucination',
+      title: 'SOTA 6-Stage RAG Chat',
       description:
-        "Queries trigger HyDE expansion, Hybrid Dense (768-dim) + Sparse BM25 scoring, Reciprocal Rank Fusion (k=60), Cross-Encoder re-ranking, and CRAG grading before Google Gemini answers.",
-      cta: "Start research session",
-      href: "/dashboard",
-    },
-    {
-      icon: Mic,
-      badge: "Hands-Free",
-      title: "Voice-to-Text Dictation",
-      description:
-        "Speak your queries directly using native browser Web Speech API voice typing. Perfect for rapid research, complex technical questions, and hands-free document analysis.",
-      cta: "Try voice typing",
-      href: "/dashboard",
-    },
-    {
-      icon: Download,
-      badge: "Export & Share",
-      title: "1-Click Markdown Export",
-      description:
-        "Download your entire grounded research session as a formatted Markdown (.md) document with complete timestamps, verbatim quotes, and inline source page citations.",
-      cta: "Explore export tools",
-      href: "/dashboard",
+        'Queries trigger HyDE expansion, Hybrid Dense (768-dim) + Sparse BM25 scoring, Reciprocal Rank Fusion (k=60), Cross-Encoder re-ranking, and CRAG grading before Google Gemini answers.',
+      cta: 'Start research session',
+      href: '/dashboard',
     },
     {
       icon: KeyRound,
-      badge: "100% Private",
-      title: "Bring Your Own Keys (BYOK)",
+      badge: '100% Private',
+      title: 'Bring Your Own Keys (BYOK)',
       description:
-        "Connect your personal Pinecone (pcsk_...) and Google Gemini API keys. Keys reside strictly in your browser localStorage and are sent via request headers — never stored on external servers.",
-      cta: "Manage API vault",
-      href: "/dashboard/account",
+        'Connect your personal Pinecone (pcsk_...) and Google Gemini API keys. Keys reside strictly in your browser localStorage and are sent via request headers — never stored on external servers.',
+      cta: 'Manage API vault',
+      href: '/dashboard/account',
     },
-  ];
+  ]
 
-  const pipelineStages = [
+  // ---------------- 2. 16 Capability Grid Cards ----------------
+  const capabilities = [
+    { icon: FileStack, label: 'Multi-PDF Collections' },
+    { icon: Globe, label: 'Web Page Crawler' },
+    { icon: Scissors, label: 'Smart Semantic Chunking' },
+    { icon: Boxes, label: 'Pinecone Namespaces' },
+    { icon: Search, label: 'HyDE Query Expansion' },
+    { icon: Sparkles, label: 'Gemini 2.5 Flash Synthesis' },
+    { icon: ListFilter, label: 'BM25 Lexical Scoring' },
+    { icon: Shuffle, label: 'Reciprocal Rank Fusion (k=60)' },
+    { icon: Gauge, label: 'Sub-Second Retrieval' },
+    { icon: BadgeCheck, label: 'CRAG Document Grader' },
+    { icon: Highlighter, label: 'Verbatim In-Line Citations' },
+    { icon: Database, label: '768-Dim Vector Embeddings' },
+    { icon: Mic, label: 'Voice-to-Text Dictation' },
+    { icon: PanelsTopLeft, label: 'Split-Screen Workspace' },
+    { icon: Download, label: '1-Click Markdown Export (.md)' },
+    { icon: ShieldCheck, label: '100% Client-Side BYOK' },
+  ]
+
+  // ---------------- 3. 3-Step How It Works ----------------
+  const steps = [
     {
-      num: "01",
-      name: "HyDE Query Expansion",
-      tag: "Semantic Alignment",
-      icon: Sparkles,
+      step: '01',
+      title: 'Ingest',
+      icon: FileText,
       description:
-        "Synthesizes an expert hypothetical passage for each query, eliminating vocabulary gaps between user questions and technical document phrasing.",
+        'Upload multiple PDF documents or crawl any live documentation URL to extract clean, formatted markdown content.',
     },
     {
-      num: "02",
-      name: "Hybrid Dense + Sparse",
-      tag: "768-Dim + BM25",
-      icon: Database,
-      description:
-        "Queries Pinecone with 768-dim Google Gemini embeddings while simultaneously scoring candidate chunks with lexical BM25 token frequency.",
-    },
-    {
-      num: "03",
-      name: "RRF (k = 60) Rank Fusion",
-      tag: "Reciprocal Ranking",
+      step: '02',
+      title: 'Index',
       icon: Layers,
       description:
-        "Fuses Dense semantic coordinates, HyDE vectors, and Sparse lexical matches through Reciprocal Rank Fusion to extract the top candidate pool.",
+        'Generate 768-dimensional Google embeddings and index semantic vectors in parallel into isolated serverless Pinecone namespaces.',
     },
     {
-      num: "04",
-      name: "Cross-Encoder Re-Ranking",
-      tag: "Fine Cross-Attention",
-      icon: Cpu,
+      step: '03',
+      title: 'Retrieve & Answer',
+      icon: MessagesSquare,
       description:
-        "Performs deep token-level cross-attention relevance scoring across query-passage pairs to surface the highest quality evidence.",
+        'Execute hybrid dense + sparse BM25 search, re-rank with reciprocal rank fusion, and generate cited answers with Google Gemini.',
     },
-    {
-      num: "05",
-      name: "CRAG Document Grader",
-      tag: "Noise Rejection",
-      icon: ShieldCheck,
-      description:
-        "Classifies retrieved candidates as CORRECT, AMBIGUOUS, or INCORRECT — discarding irrelevant document noise before synthesis.",
-    },
-    {
-      num: "06",
-      name: "L8 Spotlight & Gemini Synthesis",
-      tag: "Grounded Answer",
-      icon: Flame,
-      description:
-        "Delimits verified evidence with structured spotlight boundaries and generates cited answers using Google Gemini with multi-model quota fallback.",
-    },
-  ];
+  ]
+
+  // ---------------- 4. TrustBar Items ----------------
+  const trustItems = [
+    { icon: Sparkles, label: 'Gemini-Powered' },
+    { icon: KeyRound, label: 'Your Keys Local Only' },
+    { icon: Database, label: 'Pinecone Vector Search' },
+    { icon: FileText, label: 'PDF + Web Ingestion' },
+  ]
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/25 selection:text-foreground">
-      {/* ---------------- 1. AMBIENT BACKGROUND GLOWS ---------------- */}
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div className="absolute inset-0 grid-backdrop opacity-40" />
+    <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/25 selection:text-foreground overflow-x-hidden">
+      
+      {/* ---------------- 1. AMBIENT BACKGROUND & GLOWS ---------------- */}
+      <div className="landing-bg" aria-hidden="true" />
 
-        <div
-          className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[42rem] h-[42rem] rounded-full blur-[130px] opacity-20 pointer-events-none"
-          style={{ background: "var(--primary)" }}
-        />
+      <div
+        className="absolute top-[-8%] left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] rounded-full blur-[120px] bg-primary/20 pointer-events-none -z-10"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute top-[36%] right-[-12%] w-[32rem] h-[32rem] rounded-full blur-[120px] bg-accent/30 pointer-events-none -z-10"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-[8%] left-[-10%] w-[32rem] h-[32rem] rounded-full blur-[120px] bg-primary/10 pointer-events-none -z-10"
+        aria-hidden="true"
+      />
 
-        <div
-          className="absolute top-[35%] right-[-10%] w-[30rem] h-[30rem] rounded-full blur-[100px] opacity-30 pointer-events-none"
-          style={{ background: "var(--accent)" }}
-        />
-
-        <div
-          className="absolute bottom-[10%] left-[-8%] w-[30rem] h-[30rem] rounded-full blur-[100px] opacity-10 pointer-events-none"
-          style={{ background: "var(--primary)" }}
-        />
-      </div>
-
-      {/* ---------------- 2. STICKY NAV HEADER ---------------- */}
-      <header className="sticky top-0 z-50 h-16 backdrop-blur-xl bg-background/70 border-b border-border/60 transition-colors">
-        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      {/* ---------------- 2. NAV HEADER ---------------- */}
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          
+          {/* Logo + Wordmark */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center glow-ring transition-transform group-hover:scale-105">
-              <Sparkles className="size-4.5" />
+            <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center glow-ring group-hover:scale-105 transition-transform">
+              <Sparkles className="size-5" />
             </div>
-            <div className="flex flex-col">
-              <span className="font-display font-semibold text-lg sm:text-xl tracking-tight text-foreground leading-none">
-                PDF AI RAG Studio
-              </span>
-              <span className="font-mono text-[10px] text-muted-foreground tracking-wider uppercase mt-0.5">
-                Pinecone &amp; Gemini 2.5
-              </span>
-            </div>
+            <span className="font-display font-bold text-base sm:text-lg tracking-tight text-foreground">
+              PDF AI RAG Studio
+            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#pipeline" className="hover:text-foreground transition-colors">
-              SOTA Pipeline
-            </a>
+          {/* Center Links */}
+          <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">
               Features
             </a>
@@ -183,369 +174,487 @@ export default function HomePage() {
             </Link>
           </nav>
 
+          {/* Right Controls */}
           <div className="flex items-center gap-3">
             <ModeToggle />
-
             <Link href="/dashboard" className="hidden sm:inline-flex">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-primary text-primary-foreground font-medium text-sm font-display hover:opacity-90 transition-all glow-ring cursor-pointer"
+              <Button
+                size="sm"
+                className="h-9 px-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs hover:opacity-90 transition-all glow-ring cursor-pointer"
               >
                 <span>Launch app</span>
-                <ArrowRight className="size-4" />
-              </button>
+                <ArrowRight className="size-3.5 ml-1" />
+              </Button>
             </Link>
           </div>
         </div>
       </header>
 
       {/* ---------------- 3. HERO SECTION ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-32 pb-16 text-center">
-        <div className="max-w-3xl mx-auto flex flex-col items-center">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-border/80 bg-card/60 backdrop-blur text-xs font-medium text-muted-foreground mb-8 shadow-xs">
-            <span className="relative flex size-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full size-2 bg-primary" />
-            </span>
-            <span>SOTA 6-Stage RAG Architecture with Pinecone &amp; Google Gemini</span>
+      <section className="relative pt-20 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="max-w-3xl mx-auto space-y-6"
+        >
+          {/* Pill Badge with Pinging Dot */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono font-medium shadow-xs">
+            <span className="size-2 rounded-full bg-primary animate-pulse" />
+            <span>Retrieval-augmented generation, now in your browser</span>
           </div>
 
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] tracking-tight text-foreground mb-6">
-            Chat with your <span className="text-gradient">PDFs &amp; web</span>{" "}
-            <br className="hidden sm:block" /> like never before
+          {/* H1 Heading */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold tracking-tight text-foreground leading-[1.1]">
+            Chat with your PDFs &amp; web <span className="text-gradient">like never before</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-8">
-            PDF AI RAG Studio turns dense documents and live web pages into high-precision 768-dim
-            vector coordinates. Experience HyDE query expansion, RRF rank fusion, and L8
-            context spotlighting with zero hallucination.
+          {/* Subcopy */}
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            Powered by Pinecone 768-dim vector search and Google Gemini 2.5 Flash for sub-second retrieval,
+            hybrid sparse-dense rank fusion, and zero-hallucination document synthesis.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-5">
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
             <Link href="/dashboard" className="w-full sm:w-auto">
-              <button
-                type="button"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-8 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-base hover:opacity-90 transition-all glow-ring cursor-pointer"
+              <Button
+                size="lg"
+                className="w-full sm:w-auto h-12 px-7 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm hover:opacity-90 transition-all glow-ring cursor-pointer"
               >
                 <span>Open the workspace</span>
-                <ArrowRight className="size-4.5" />
-              </button>
+                <ArrowRight className="size-4 ml-2" />
+              </Button>
             </Link>
-            <a href="#pipeline" className="w-full sm:w-auto">
-              <button
-                type="button"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl border border-border bg-card/60 hover:bg-card text-foreground font-display font-medium text-base transition-colors cursor-pointer"
+
+            <a href="#how-it-works" className="w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto h-12 px-6 rounded-xl border-border bg-card/80 hover:bg-card text-foreground font-display font-medium text-sm transition-colors cursor-pointer"
               >
-                <span>Explore SOTA Pipeline</span>
-              </button>
+                See how it works
+              </Button>
             </a>
           </div>
+        </motion.div>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-muted-foreground/90 font-medium pt-1">
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 text-primary" />
-              <span>Google OAuth &amp; Email Sign-In</span>
-            </span>
-            <span className="text-border hidden sm:inline">•</span>
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5 text-emerald-500" />
-              <span>100% Private Client-Side Keys (BYOK)</span>
-            </span>
-            <span className="text-border hidden sm:inline">•</span>
-            <span className="inline-flex items-center gap-1.5">
-              <Zap className="size-3.5 text-amber-500" />
-              <span>Zero Setup · Instant Research</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Floating Mock Workspace Preview */}
-        <div className="mt-12 sm:mt-16 max-w-4xl mx-auto">
-          <div className="surface-panel rounded-2xl p-3 sm:p-5 text-left transition-all shadow-2xl">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b border-border/60">
+        {/* Floating Mock Workspace */}
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+          className="mt-14 max-w-4xl mx-auto text-left"
+        >
+          <div className="surface-panel rounded-2xl overflow-hidden shadow-2xl border border-border/80">
+            {/* Window Chrome Header */}
+            <div className="h-10 border-b border-border/60 bg-card/80 px-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="size-3 rounded-full bg-red-500" />
-                <span className="size-3 rounded-full bg-amber-500" />
-                <span className="size-3 rounded-full bg-emerald-500" />
+                <span className="size-3 rounded-full bg-red-500/80" />
+                <span className="size-3 rounded-full bg-yellow-500/80" />
+                <span className="size-3 rounded-full bg-emerald-500/80" />
               </div>
-              <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground select-none">
-                <span className="hidden sm:inline">ns: col-contract-audit-2026</span>
-                <span className="opacity-40">|</span>
-                <span>pdf-ai-rag-studio / workspace</span>
-              </div>
-              <div className="size-3 opacity-0" />
+              <span className="font-mono text-xs text-muted-foreground truncate">
+                pdf-ai-rag-studio / workspace
+              </span>
+              <div className="w-12" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-              <div className="bg-card/70 border border-border/60 rounded-xl p-3.5 flex items-center gap-3">
-                <div className="size-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                  <Layers className="size-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium">Vector Dimension</div>
-                  <div className="text-base font-bold font-mono text-foreground">768-dim Cosine</div>
-                </div>
+            {/* 3-Column MiniStat Row */}
+            <div className="grid grid-cols-3 border-b border-border/60 bg-background/50 text-center py-3 px-4 text-xs font-mono">
+              <div className="border-r border-border/60">
+                <span className="text-muted-foreground block text-[10px]">COLLECTIONS</span>
+                <span className="font-bold text-foreground text-sm">6</span>
               </div>
-
-              <div className="bg-card/70 border border-border/60 rounded-xl p-3.5 flex items-center gap-3">
-                <div className="size-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                  <Cpu className="size-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium">Pipeline Strategy</div>
-                  <div className="text-base font-bold font-display text-foreground">
-                    HyDE + RRF (k=60)
-                  </div>
-                </div>
+              <div className="border-r border-border/60">
+                <span className="text-muted-foreground block text-[10px]">DOCUMENTS</span>
+                <span className="font-bold text-foreground text-sm">142</span>
               </div>
-
-              <div className="bg-card/70 border border-border/60 rounded-xl p-3.5 flex items-center gap-3">
-                <div className="size-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                  <Globe className="size-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium">Active Vector Store</div>
-                  <div className="text-base font-bold font-display text-foreground">
-                    Pinecone Serverless
-                  </div>
-                </div>
+              <div>
+                <span className="text-muted-foreground block text-[10px]">PAGES CRAWLED</span>
+                <span className="font-bold text-foreground text-sm">318</span>
               </div>
             </div>
 
-            <div className="bg-card/90 border border-border/60 rounded-xl p-4 sm:p-5 space-y-3.5">
-              <div className="flex items-start gap-3">
-                <div className="size-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                  <MessagesSquare className="size-4" />
+            {/* Mock Q&A Conversation Feed */}
+            <div className="p-5 sm:p-6 space-y-4 text-xs sm:text-sm bg-card/40">
+              {/* User Bubble */}
+              <div className="flex justify-end">
+                <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-none bg-primary text-primary-foreground p-3.5 shadow-xs font-medium">
+                  What is the aggregate liability cap under Section 9.2 of the Master Services Agreement?
                 </div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium mb-1">
-                    Research Query
-                  </div>
-                  <p className="text-sm font-medium text-foreground">
-                    What does §7.2 of the enterprise agreement specify regarding indemnity limits
-                    and intellectual property claims?
+              </div>
+
+              {/* Bot Bubble */}
+              <div className="flex gap-3 items-start justify-start">
+                <div className="size-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 glow-ring mt-0.5">
+                  <Sparkles className="size-4" />
+                </div>
+                <div className="max-w-[85%] sm:max-w-[80%] rounded-2xl rounded-tl-none bg-card border border-border/80 text-foreground p-4 space-y-2.5 shadow-xs">
+                  <p className="leading-relaxed">
+                    Under <strong>Section 9.2 (Limitation of Liability)</strong>, the total aggregate liability of either party for all claims arising out of this Agreement is strictly capped at <strong>2.0× the total fees paid</strong> in the preceding 12-month period, excluding instances of gross negligence or willful misconduct.
                   </p>
+                  
+                  {/* Grounded Citation Badge */}
+                  <div className="pt-2 border-t border-border/50 flex flex-wrap items-center gap-2 text-[11px] font-mono">
+                    <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/25 px-2.5 py-1 rounded-lg">
+                      <FileText className="size-3" />
+                      <span>[Contract-Q3.pdf, p.12]</span>
+                    </span>
+                    <span className="text-emerald-500 font-semibold">✓ 98.4% Grounded Match</span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="pl-11 border-l-2 border-primary/50 ml-4 py-1.5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-primary font-semibold font-display">
-                    Gemini 2.5 Flash Grounded Synthesis
-                  </span>
-                  <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-semibold">
-                    CRAG: VERIFIED (98.4% match)
-                  </span>
-                </div>
-                <p className="text-sm text-foreground/90 leading-relaxed">
-                  According to §7.2 (Indemnification and Liabilities), third-party claims arising from
-                  direct intellectual property infringement and gross negligence are exempted from
-                  the standard liability cap. The indemnifying party is required to defend, hold
-                  harmless, and settle all related claims within 30 business days…{" "}
-                  <span className="text-primary font-mono text-xs font-semibold bg-primary/10 px-1.5 py-0.5 rounded">
-                    [Master_Services_Agreement_Q3.pdf, Page 12, Chunk #4]
-                  </span>
-                </p>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* ---------------- 4. PIPELINE SECTION ---------------- */}
-      <section id="pipeline" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
-            State-of-the-Art 6-Stage RAG Pipeline
-          </h2>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Every query goes through a multi-pass retrieval, verification, and grading architecture
-            engineered for absolute accuracy.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {pipelineStages.map((st, i) => {
-            const Icon = st.icon;
-            return (
-              <div key={i} className="surface-panel rounded-2xl p-6 relative flex flex-col justify-between group hover:border-primary/50 transition-all shadow-sm">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md">
-                      STAGE {st.num}
-                    </span>
-                    <span className="text-[11px] font-mono text-muted-foreground">{st.tag}</span>
-                  </div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                      <Icon className="size-4.5" />
-                    </div>
-                    <h3 className="font-display font-semibold text-base text-foreground">{st.name}</h3>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{st.description}</p>
+      {/* ---------------- 4. TRUST BAR ---------------- */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto my-6" aria-label="Key highlights">
+        <div className="rounded-2xl border border-border/50 bg-card/40 backdrop-blur-md p-4 sm:p-5 shadow-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            {trustItems.map((item, idx) => {
+              const Icon = item.icon
+              return (
+                <div key={idx} className="flex items-center justify-center gap-2 text-xs font-mono font-medium text-foreground">
+                  <Icon className="size-4 text-primary shrink-0" />
+                  <span>{item.label}</span>
                 </div>
-              </div>
-            );
-          })}
+              )
+            })}
+          </div>
         </div>
       </section>
 
       {/* ---------------- 5. FEATURES SECTION ---------------- */}
-      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-border/60">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
-            Core Superpowers Built for Research
+      <section id="features" className="scroll-mt-20 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <span className="text-primary font-mono text-xs tracking-wider uppercase font-semibold">
+            Features
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">
+            Everything you need to ground AI in your data
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Everything you need to process large document libraries and live web content effortlessly.
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Built from scratch for deep document extraction, parallel vector indexing, and zero-hallucination verification.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featureCards.map((feat, idx) => {
-            const Icon = feat.icon;
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {features.map((feat, idx) => {
+            const Icon = feat.icon
             return (
-              <div key={idx} className="surface-panel rounded-2xl p-6 flex flex-col justify-between group hover:border-primary/40 transition-all shadow-sm">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="size-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-                      <Icon className="size-5" />
-                    </div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider bg-card px-2.5 py-1 rounded-full border border-border/70 text-muted-foreground">
-                      {feat.badge}
-                    </span>
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: idx * 0.06 }}
+                className="surface-panel rounded-2xl p-6 sm:p-8 space-y-4 hover:-translate-y-1 transition-all duration-300 group border border-border/80 hover:border-primary/40 shadow-xl"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="size-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center glow-ring group-hover:scale-105 transition-transform">
+                    <Icon className="size-5" />
                   </div>
-                  <h3 className="font-display text-lg font-semibold text-foreground">{feat.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{feat.description}</p>
+                  <span className="text-[10px] font-mono font-semibold uppercase px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    {feat.badge}
+                  </span>
                 </div>
-                <div className="pt-5 mt-4 border-t border-border/50">
-                  <Link href={feat.href} className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
-                    <span>{feat.cta}</span>
-                    <ArrowRight className="size-3" />
-                  </Link>
-                </div>
-              </div>
-            );
+
+                <h3 className="text-lg sm:text-xl font-display font-bold text-foreground">
+                  {feat.title}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {feat.description}
+                </p>
+
+                <Link
+                  href={feat.href}
+                  className="inline-flex items-center gap-1.5 text-xs font-display font-semibold text-primary group-hover:translate-x-1 transition-transform pt-1"
+                >
+                  <span>{feat.cta}</span>
+                  <ChevronRight className="size-3.5" />
+                </Link>
+              </motion.div>
+            )
           })}
         </div>
       </section>
 
-      {/* ---------------- 6. HOW IT WORKS ---------------- */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-border/60">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
-            How It Works in 3 Simple Steps
+      {/* ---------------- 6. CAPABILITY GRID (16 CARDS) ---------------- */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-label="Full system capabilities">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+          <span className="text-primary font-mono text-xs tracking-wider uppercase font-semibold">
+            Capabilities
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+            Complete Toolkit for Production RAG
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="surface-panel rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="size-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-                  <FileText className="size-5.5" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4">
+          {capabilities.map((cap, idx) => {
+            const Icon = cap.icon
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20, delay: idx * 0.03 }}
+                className="surface-panel rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-3 group hover:-translate-y-1.5 transition-all duration-200 border border-border/80 hover:border-primary/40 shadow-md focus-visible:ring-2 focus-visible:ring-primary cursor-default relative overflow-hidden"
+              >
+                <div className="size-10 rounded-xl bg-card border border-border/80 text-primary flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/15 transition-all">
+                  <Icon className="size-5" />
                 </div>
-                <span className="font-mono font-bold text-sm sm:text-base text-muted-foreground/80">01</span>
-              </div>
-              <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-2.5">
-                1. Upload PDFs or Crawl Web
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Drop your PDF files or enter a website URL. Documents are chunked into semantic tokens with metadata.
-              </p>
-            </div>
-          </div>
+                <span className="font-display font-medium text-xs sm:text-sm text-foreground">
+                  {cap.label}
+                </span>
 
-          <div className="surface-panel rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="size-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-                  <Layers className="size-5.5" />
-                </div>
-                <span className="font-mono font-bold text-sm sm:text-base text-muted-foreground/80">02</span>
-              </div>
-              <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-2.5">
-                2. High-Speed Batch Indexing
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Parallel 768-dim embeddings land instantly in your Pinecone namespace collections for sub-35ms vector scans.
-              </p>
-            </div>
-          </div>
-
-          <div className="surface-panel rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="size-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
-                  <MessagesSquare className="size-5.5" />
-                </div>
-                <span className="font-mono font-bold text-sm sm:text-base text-muted-foreground/80">03</span>
-              </div>
-              <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-2.5">
-                3. Chat with Voice or Text
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Ask deep technical questions or dictate via voice. Receive verified, hallucination-free answers with exact source citations.
-              </p>
-            </div>
-          </div>
+                {/* Expanding accent underline on hover */}
+                <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary group-hover:w-full transition-all duration-300" />
+              </motion.div>
+            )
+          })}
         </div>
       </section>
 
-      {/* ---------------- 7. CTA SECTION ---------------- */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="rounded-3xl border border-border relative overflow-hidden bg-gradient-to-br from-primary/15 via-card to-accent/20 p-8 sm:p-14 text-center shadow-2xl">
-          <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-5">
+      {/* ---------------- 7. HOW IT WORKS ---------------- */}
+      <section id="how-it-works" className="scroll-mt-20 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <span className="text-primary font-mono text-xs tracking-wider uppercase font-semibold">
+            Workflow
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">
+            From document to answer in three steps
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            No complex infrastructure setup. Connect your keys and analyze documents instantly.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+          {steps.map((step, idx) => {
+            const Icon = step.icon
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="surface-panel rounded-2xl p-6 sm:p-7 space-y-4 border border-border/80 shadow-xl relative"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="size-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center glow-ring">
+                    <Icon className="size-5" />
+                  </div>
+                  <span className="text-2xl font-mono font-extrabold text-primary/40">
+                    {step.step}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-display font-bold text-foreground">
+                  {step.title}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
+
+                {/* Arrow Connector on desktop between cards */}
+                {idx < steps.length - 1 && (
+                  <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 text-primary/40 z-10">
+                    <ArrowRight className="size-5" />
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ---------------- 8. CTA SECTION ---------------- */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5 }}
+          className="rounded-3xl bg-gradient-to-br from-primary/15 via-card to-accent/20 border border-primary/25 relative overflow-hidden p-8 sm:p-14 text-center shadow-2xl space-y-6"
+        >
+          {/* Subtle Grid Backdrop Overlay */}
+          <div className="absolute inset-0 grid-backdrop opacity-30 pointer-events-none" aria-hidden="true" />
+
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            <h2 className="text-2xl sm:text-4xl font-display font-bold text-foreground leading-tight">
               Ready to turn your documents into answers?
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-8">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
               Jump straight in, connect your Pinecone and Gemini API keys, upload a PDF or crawl a URL,
               and start chatting in under two minutes.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
               <Link href="/dashboard" className="w-full sm:w-auto">
-                <button
-                  type="button"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-8 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-base hover:opacity-90 transition-all glow-ring cursor-pointer"
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm hover:opacity-90 transition-all glow-ring cursor-pointer"
                 >
                   <span>Launch the studio</span>
-                  <ArrowRight className="size-4.5" />
-                </button>
+                  <ArrowRight className="size-4 ml-2" />
+                </Button>
               </Link>
 
               <Link href="/dashboard/account" className="w-full sm:w-auto">
-                <button
-                  type="button"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl border border-border bg-card/80 hover:bg-card text-foreground font-display font-medium text-base transition-colors cursor-pointer"
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full sm:w-auto h-12 px-6 rounded-xl border-border bg-card/80 hover:bg-card text-foreground font-display font-medium text-sm transition-colors cursor-pointer"
                 >
-                  <span>Configure API keys (BYOK)</span>
-                </button>
+                  Configure API keys (BYOK)
+                </Button>
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* ---------------- 8. FOOTER ---------------- */}
-      <footer className="border-t border-border/60 bg-background/60 py-10 mt-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center glow-ring">
-              <Sparkles className="size-4" />
-            </div>
-            <span className="font-display font-semibold text-base tracking-tight text-foreground">
-              PDF AI RAG Studio
-            </span>
-          </Link>
+      {/* ---------------- 9. SITE FOOTER ---------------- */}
+      <footer className="border-t border-border/60 bg-background/80 py-12 px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-border/60 text-xs">
+          
+          {/* Logo & Tagline */}
+          <div className="space-y-3 md:col-span-1">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center glow-ring">
+                <Sparkles className="size-4" />
+              </div>
+              <span className="font-display font-bold text-sm tracking-tight text-foreground">
+                PDF AI RAG Studio
+              </span>
+            </Link>
+            <p className="text-muted-foreground leading-relaxed">
+              SOTA 6-stage Retrieval-Augmented Generation platform powered by Pinecone &amp; Google Gemini 2.5 Flash.
+            </p>
+          </div>
 
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} PDF AI RAG Studio. Built with Next.js 15, FastAPI,
-            Pinecone &amp; Google Gemini.
+          {/* Product Links */}
+          <div className="space-y-2.5">
+            <span className="font-display font-semibold text-foreground tracking-wide block uppercase text-[11px]">
+              Product
+            </span>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <Link href="/dashboard" className="hover:text-foreground transition-colors">
+                  RAG Workspace
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/web-loader" className="hover:text-foreground transition-colors">
+                  Web Crawler
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/account" className="hover:text-foreground transition-colors">
+                  API Key Vault
+                </Link>
+              </li>
+              <li>
+                <a href="#how-it-works" className="hover:text-foreground transition-colors">
+                  How It Works
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources Links */}
+          <div className="space-y-2.5">
+            <span className="font-display font-semibold text-foreground tracking-wide block uppercase text-[11px]">
+              Resources
+            </span>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>
+                <a
+                  href="https://github.com/Pradeepks01/PDF-AI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors inline-flex items-center gap-1"
+                >
+                  <span>Documentation</span>
+                  <ExternalLink className="size-3" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://pinecone.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors inline-flex items-center gap-1"
+                >
+                  <span>Pinecone Vector DB</span>
+                  <ExternalLink className="size-3" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://ai.google.dev"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors inline-flex items-center gap-1"
+                >
+                  <span>Google Gemini AI</span>
+                  <ExternalLink className="size-3" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/Pradeepks01/PDF-AI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors inline-flex items-center gap-1"
+                >
+                  <span>GitHub Repository</span>
+                  <ExternalLink className="size-3" />
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal / Privacy Links */}
+          <div className="space-y-2.5">
+            <span className="font-display font-semibold text-foreground tracking-wide block uppercase text-[11px]">
+              Security &amp; Privacy
+            </span>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>100% Private (BYOK)</li>
+              <li>Local Browser Vault</li>
+              <li>Zero External Telemetry</li>
+              <li>Open Source MIT/Apache</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Copyright */}
+        <div className="max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground">
+          <p>
+            &copy; {new Date().getFullYear()} PDF AI RAG Studio. Built with Next.js 15, FastAPI, Pinecone &amp; Google Gemini.
           </p>
+          <div className="flex items-center gap-4">
+            <a href="#features" className="hover:text-foreground transition-colors">
+              Features
+            </a>
+            <a href="#how-it-works" className="hover:text-foreground transition-colors">
+              Workflow
+            </a>
+            <Link href="/dashboard" className="hover:text-foreground transition-colors">
+              Dashboard
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
-  );
+  )
 }

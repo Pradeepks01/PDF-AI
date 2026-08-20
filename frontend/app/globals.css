@@ -33,6 +33,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
   
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -44,6 +53,9 @@
 
 :root {
   --radius: 0.75rem;
+  --font-space-grotesk: "Space Grotesk", sans-serif;
+  --font-dm-sans: "DM Sans", sans-serif;
+  --font-jetbrains-mono: "JetBrains Mono", monospace;
   
   /* Light theme */
   --background: oklch(0.985 0.004 240);
@@ -58,8 +70,8 @@
   --secondary: oklch(0.94 0.01 245);
   --secondary-foreground: oklch(0.19 0.025 250);
   --muted: oklch(0.94 0.01 245);
-  --muted-foreground: oklch(0.48 0.025 250);
-  --accent: oklch(0.93 0.02 210);
+  --muted-foreground: oklch(0.52 0.02 250);
+  --accent: oklch(0.93 0.04 195);
   --accent-foreground: oklch(0.19 0.025 250);
   --destructive: oklch(0.65 0.19 25);
   --success: oklch(0.72 0.15 158);
@@ -67,6 +79,20 @@
   --border: oklch(0.9 0.01 245);
   --input: oklch(0.9 0.01 245);
   --ring: oklch(0.62 0.13 198);
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  --shadow-elegant: 0 24px 60px -28px oklch(0.19 0.025 250 / 15%);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent), 0 12px 40px -12px color-mix(in srgb, var(--primary) 55%, transparent);
+  --gradient-surface: linear-gradient(160deg, color-mix(in srgb, var(--primary) 6%, var(--card)), var(--card));
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
 }
 
 .dark {
@@ -92,6 +118,20 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.78 0.13 192);
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  --shadow-elegant: 0 24px 60px -28px oklch(0 0 0 / 70%);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent), 0 12px 40px -12px color-mix(in srgb, var(--primary) 55%, transparent);
+  --gradient-surface: linear-gradient(160deg, color-mix(in srgb, var(--primary) 8%, var(--card)), var(--card));
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
 }
 
 @layer base {
@@ -100,33 +140,60 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+    font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+  code, pre, kbd, samp {
+    font-family: var(--font-jetbrains-mono), monospace;
   }
 }
 
 /* Custom Design System Utilities */
 .surface-panel {
-  background: linear-gradient(160deg, color-mix(in srgb, var(--primary) 8%, var(--card)), var(--card));
+  background-image: var(--gradient-surface);
   border: 1px solid var(--border);
-  box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.7);
+  box-shadow: var(--shadow-elegant);
 }
 
 .text-gradient {
-  background-image: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  background-image: var(--gradient-primary);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .glow-ring {
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent), 0 12px 40px -12px color-mix(in srgb, var(--primary) 55%, transparent);
+  box-shadow: var(--shadow-glow);
 }
 
 .grid-backdrop {
   background-image: 
-    linear-gradient(to right, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px);
   background-size: 44px 44px;
+}
+
+.landing-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-image:
+    radial-gradient(140% 90% at 50% 118%, color-mix(in srgb, var(--primary) 30%, transparent) 0%, color-mix(in srgb, var(--primary) 9%, transparent) 45%, transparent 70%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 8%, var(--background)) 0%, var(--background) 58%),
+    linear-gradient(to right, color-mix(in srgb, var(--primary) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 10%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
