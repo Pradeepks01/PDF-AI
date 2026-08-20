@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pdf-ai-puce.vercel.app"),
-  title: "PDF AI RAG Studio — Chat with your PDFs & web like never before",
+  title: "PDF AI — Chat with your PDFs & web like never before",
   description:
     "SOTA 6-stage Retrieval-Augmented Generation studio powered by Pinecone 768-dim vector search and Google Gemini 2.5 Flash for millisecond retrieval across documents and live web pages.",
   keywords: [
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
     "Document Q&A",
     "Web Crawler RAG",
   ],
-  authors: [{ name: "PDF AI RAG Studio Team" }],
-  creator: "PDF AI RAG Studio",
+  authors: [{ name: "PDF AI Team" }],
+  creator: "PDF AI",
   alternates: {
     canonical: "https://pdf-ai-puce.vercel.app",
   },
@@ -29,17 +29,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://pdf-ai-puce.vercel.app",
-    title: "PDF AI RAG Studio — Chat with your PDFs & web like never before",
+    title: "PDF AI — Chat with your PDFs & web like never before",
     description:
       "Transform PDFs and web pages into high-precision vector coordinates with Pinecone & Google Gemini. 100% private with Bring Your Own Keys (BYOK).",
-    siteName: "PDF AI RAG Studio",
+    siteName: "PDF AI",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PDF AI RAG Studio — Chat with your PDFs & web like never before",
+    title: "PDF AI — Chat with your PDFs & web like never before",
     description:
       "SOTA 6-stage RAG studio with Pinecone vector database and Google Gemini 2.5 Flash.",
-    creator: "@pdf_ai_rag",
+    creator: "@pdf_ai",
   },
   robots: {
     index: true,
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "PDF AI RAG Studio",
+  "name": "PDF AI",
   "operatingSystem": "All modern browsers (Web)",
   "applicationCategory": "BusinessApplication, ProductivityApplication",
   "offers": {

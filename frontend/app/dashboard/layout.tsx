@@ -196,7 +196,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}
 
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-muted-foreground">
-              <span className="text-foreground font-semibold font-display">PDF AI RAG Studio</span>
+              <span className="text-foreground font-semibold font-display">PDF AI</span>
               <span>/</span>
               <span className="capitalize">{pathname.replace("/dashboard", "").replace("/", "") || "Workspace"}</span>
             </div>

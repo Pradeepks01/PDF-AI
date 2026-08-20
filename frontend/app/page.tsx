@@ -160,7 +160,7 @@ export default function LandingPage() {
                 <LogoIcon className="size-4.5" />
               </div>
               <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white">
-                PDF AI RAG Studio
+                PDF AI
               </span>
             </Link>
 
@@ -180,12 +180,12 @@ export default function LandingPage() {
             {/* Right Controls */}
             <div className="flex items-center gap-3">
               <ModeToggle />
-              <Link href="/dashboard" className="hidden sm:inline-flex">
+              <Link href="/sign-in" className="hidden sm:inline-flex">
                 <Button
                   size="sm"
                   className="h-9 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-display font-semibold text-xs transition-all shadow-md cursor-pointer"
                 >
-                  <span>Launch app</span>
+                  <span>Sign In</span>
                   <ArrowRight className="size-3.5 ml-1" />
                 </Button>
               </Link>
@@ -258,7 +258,7 @@ export default function LandingPage() {
                 <span className="size-3 rounded-full bg-emerald-500/80" />
               </div>
               <span className="font-mono text-xs text-muted-foreground truncate">
-                pdf-ai-rag-studio / workspace
+                pdf-ai / workspace
               </span>
               <div className="w-12" />
             </div>
@@ -532,11 +532,11 @@ export default function LandingPage() {
           {/* Logo & Tagline */}
           <div className="space-y-3 md:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center glow-ring">
+              <div className="size-8 rounded-lg bg-cyan-400 text-slate-950 flex items-center justify-center glow-ring">
                 <LogoIcon className="size-4" />
               </div>
               <span className="font-display font-bold text-sm tracking-tight text-foreground">
-                PDF AI RAG Studio
+                PDF AI
               </span>
             </Link>
             <p className="text-muted-foreground leading-relaxed">
@@ -643,7 +643,7 @@ export default function LandingPage() {
         {/* Bottom Copyright */}
         <div className="max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} PDF AI RAG Studio. Built with Next.js 15, FastAPI, Pinecone &amp; Google Gemini.
+            &copy; {new Date().getFullYear()} PDF AI. Built with Next.js 15, FastAPI, Pinecone &amp; Google Gemini.
           </p>
           <div className="flex items-center gap-4">
             <a href="#features" className="hover:text-foreground transition-colors">
