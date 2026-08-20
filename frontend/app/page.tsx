@@ -151,47 +151,47 @@ export default function LandingPage() {
 
       <div className="relative z-10">
         {/* ---------------- 2. NAV HEADER ---------------- */}
-        <header className="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          
-          {/* Logo + Wordmark */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center glow-ring group-hover:scale-105 transition-transform">
-              <LogoIcon className="size-5" />
+        <header className="sticky top-0 z-50 border-b border-white/10 bg-white/5 backdrop-blur-md transition-all">
+          <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            
+            {/* Logo + Wordmark */}
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="size-8 rounded-xl bg-cyan-400 text-slate-950 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                <LogoIcon className="size-4.5" />
+              </div>
+              <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white">
+                PDF AI RAG Studio
+              </span>
+            </Link>
+
+            {/* Center Links */}
+            <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-blue-100/90">
+              <a href="#features" className="hover:text-white transition-colors">
+                Features
+              </a>
+              <a href="#how-it-works" className="hover:text-white transition-colors">
+                How it works
+              </a>
+              <Link href="/dashboard" className="hover:text-white transition-colors">
+                Dashboard
+              </Link>
+            </nav>
+
+            {/* Right Controls */}
+            <div className="flex items-center gap-3">
+              <ModeToggle />
+              <Link href="/dashboard" className="hidden sm:inline-flex">
+                <Button
+                  size="sm"
+                  className="h-9 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-display font-semibold text-xs transition-all shadow-md cursor-pointer"
+                >
+                  <span>Launch app</span>
+                  <ArrowRight className="size-3.5 ml-1" />
+                </Button>
+              </Link>
             </div>
-            <span className="font-display font-bold text-base sm:text-lg tracking-tight text-foreground">
-              PDF AI RAG Studio
-            </span>
-          </Link>
-
-          {/* Center Links */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-medium text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">
-              How it works
-            </a>
-            <Link href="/dashboard" className="hover:text-foreground transition-colors">
-              Dashboard
-            </Link>
-          </nav>
-
-          {/* Right Controls */}
-          <div className="flex items-center gap-3">
-            <ModeToggle />
-            <Link href="/dashboard" className="hidden sm:inline-flex">
-              <Button
-                size="sm"
-                className="h-9 px-4 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-xs hover:opacity-90 transition-all glow-ring cursor-pointer"
-              >
-                <span>Launch app</span>
-                <ArrowRight className="size-3.5 ml-1" />
-              </Button>
-            </Link>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* ---------------- 3. HERO SECTION ---------------- */}
       <section className="relative pt-20 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
