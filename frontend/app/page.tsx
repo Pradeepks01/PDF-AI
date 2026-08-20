@@ -202,18 +202,18 @@ export default function LandingPage() {
           className="max-w-3xl mx-auto space-y-6"
         >
           {/* Pill Badge with Pinging Dot */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono font-medium shadow-xs">
-            <span className="size-2 rounded-full bg-primary animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 text-white text-xs font-mono font-medium shadow-md backdrop-blur-md">
+            <span className="size-2 rounded-full bg-cyan-300 animate-pulse" />
             <span>Retrieval-augmented generation, now in your browser</span>
           </div>
 
           {/* H1 Heading */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold tracking-tight text-foreground leading-[1.1]">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold tracking-tight text-white leading-[1.1] drop-shadow-sm">
             Chat with your PDFs &amp; web <span className="text-gradient">like never before</span>
           </h1>
 
           {/* Subcopy */}
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-blue-100/90 leading-relaxed max-w-2xl mx-auto font-normal">
             Powered by Pinecone 768-dim vector search and Google Gemini 2.5 Flash for sub-second retrieval,
             hybrid sparse-dense rank fusion, and zero-hallucination document synthesis.
           </p>
@@ -223,7 +223,7 @@ export default function LandingPage() {
             <Link href="/dashboard" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto h-12 px-7 rounded-xl bg-primary text-primary-foreground font-display font-semibold text-sm hover:opacity-90 transition-all glow-ring cursor-pointer"
+                className="w-full sm:w-auto h-12 px-7 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-display font-semibold text-sm transition-all glow-ring cursor-pointer shadow-lg"
               >
                 <span>Open the workspace</span>
                 <ArrowRight className="size-4 ml-2" />
@@ -234,7 +234,7 @@ export default function LandingPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full sm:w-auto h-12 px-6 rounded-xl border-border bg-card/80 hover:bg-card text-foreground font-display font-medium text-sm transition-colors cursor-pointer"
+                className="w-full sm:w-auto h-12 px-6 rounded-xl border-white/25 bg-white/10 hover:bg-white/20 text-white font-display font-medium text-sm transition-all cursor-pointer backdrop-blur-md"
               >
                 See how it works
               </Button>
