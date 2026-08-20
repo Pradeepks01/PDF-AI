@@ -175,17 +175,32 @@
   background-size: 44px 44px;
 }
 
-.landing-bg {
-  position: absolute;
+.landing-grid-full {
+  position: fixed;
   inset: 0;
   pointer-events: none;
+  z-index: -10;
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+}
+
+.dark .landing-grid-full {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+}
+
+.landing-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -10;
   overflow: hidden;
   background-image:
-    radial-gradient(140% 90% at 50% 118%, color-mix(in srgb, var(--primary) 30%, transparent) 0%, color-mix(in srgb, var(--primary) 9%, transparent) 45%, transparent 70%),
-    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 8%, var(--background)) 0%, var(--background) 58%),
-    linear-gradient(to right, color-mix(in srgb, var(--primary) 10%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 10%, transparent) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+    radial-gradient(140% 90% at 50% 118%, color-mix(in srgb, var(--primary) 25%, transparent) 0%, color-mix(in srgb, var(--primary) 6%, transparent) 45%, transparent 70%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 8%, var(--background)) 0%, var(--background) 58%);
 }
 
 /* Reduced motion support */
