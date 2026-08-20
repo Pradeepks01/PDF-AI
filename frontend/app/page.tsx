@@ -155,10 +155,8 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             
             {/* Logo + Wordmark */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="size-8 rounded-xl bg-cyan-400 text-slate-950 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                <LogoIcon className="size-4.5" />
-              </div>
+            <Link href="/" className="flex items-center gap-2 group">
+              <LogoIcon className="size-6 text-white group-hover:scale-105 transition-transform" />
               <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white">
                 PDF AI
               </span>
@@ -531,10 +529,8 @@ export default function LandingPage() {
           
           {/* Logo & Tagline */}
           <div className="space-y-3 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="size-8 rounded-lg bg-cyan-400 text-slate-950 flex items-center justify-center glow-ring">
-                <LogoIcon className="size-4" />
-              </div>
+            <Link href="/" className="flex items-center gap-2 group">
+              <LogoIcon className="size-5 text-white" />
               <span className="font-display font-bold text-sm tracking-tight text-foreground">
                 PDF AI
               </span>

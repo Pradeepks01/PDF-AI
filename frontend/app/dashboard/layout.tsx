@@ -96,12 +96,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           onClick={handleLinkClick}
           className="flex items-center gap-2.5 px-3 py-2.5 mb-3 rounded-xl bg-card border border-border/80 hover:border-primary/40 transition-colors group"
         >
-          <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center glow-ring group-hover:scale-105 transition-transform">
-            <LogoIcon className="size-4" />
-          </div>
+          <LogoIcon className="size-6 text-primary group-hover:scale-105 transition-transform" />
           <div className="flex flex-col min-w-0">
             <span className="font-display font-semibold text-sm tracking-tight text-foreground truncate">
-              PDF AI Studio
+              PDF AI
             </span>
             <span className="font-mono text-[10px] text-muted-foreground truncate">
               Pinecone &amp; Gemini 2.5

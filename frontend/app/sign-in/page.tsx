@@ -177,10 +177,8 @@ export default function SignInPage() {
         
         {/* ---------------- 2. TOP NAV HEADER ---------------- */}
         <header className="h-16 px-4 sm:px-8 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="size-8 rounded-xl bg-cyan-400 text-slate-950 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-              <LogoIcon className="size-4.5" />
-            </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <LogoIcon className="size-6 text-white group-hover:scale-105 transition-transform" />
             <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white">
               PDF AI
             </span>
