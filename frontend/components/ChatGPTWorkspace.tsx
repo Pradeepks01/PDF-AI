@@ -404,16 +404,19 @@ export default function ChatGPTWorkspace() {
         }`}
       >
         {/* Sidebar Header & New Chat Button */}
-        <div className="p-3 border-b border-border/60 space-y-2">
+        <div className="p-3.5 border-b border-border/60 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">
-              Chats &amp; Sessions
-            </span>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="size-4 text-primary" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-mono">
+                Chat History
+              </span>
+            </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsSidebarOpen(false)}
-              className="size-7 text-muted-foreground hover:text-foreground"
+              className="size-7 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
               title="Close Chat History"
             >
               <PanelLeftClose className="size-4" />
@@ -422,7 +425,7 @@ export default function ChatGPTWorkspace() {
 
           <Button 
             onClick={handleNewChat}
-            className="w-full bg-primary text-primary-foreground hover:opacity-90 font-medium text-xs h-9 rounded-xl gap-2 cursor-pointer shadow-xs"
+            className="w-full bg-primary text-primary-foreground hover:opacity-90 font-semibold text-xs h-9 rounded-xl gap-2 cursor-pointer shadow-sm"
           >
             <Plus className="size-4" />
             <span>New Chat Session</span>
@@ -435,7 +438,7 @@ export default function ChatGPTWorkspace() {
               placeholder="Search chat history..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8 pl-8 text-xs bg-card/50 border-border/80 rounded-lg focus-visible:ring-primary"
+              className="h-8 pl-8 text-xs bg-card/60 border-border/80 rounded-xl focus-visible:ring-primary"
             />
           </div>
         </div>

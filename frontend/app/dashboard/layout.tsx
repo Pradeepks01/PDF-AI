@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Sparkles,
   MessagesSquare,
+  Activity,
 } from "lucide-react";
 import NavbarProfile from "@/components/NavbarProfile";
 import { ModeToggle } from "@/components/ModeToggle";
@@ -51,9 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="size-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center animate-pulse shadow-lg shadow-primary/20">
-            <LogoIcon className="size-6" />
-          </div>
+          <LogoIcon className="size-10 text-primary animate-pulse" />
           <p className="text-xs text-muted-foreground animate-pulse font-mono">Authenticating session...</p>
         </div>
       </div>
@@ -72,10 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (label === "RAG Workspace") {
       return pathname === "/dashboard" || pathname.startsWith("/dashboard/chat");
     }
-    if (label === "API Key Vault") {
-      return pathname === "/dashboard/account";
-    }
-    if (label === "Account Profile") {
+    if (label === "API Key Vault" || label === "Account Profile") {
       return pathname === "/dashboard/account";
     }
     return pathname.startsWith(href);
@@ -88,27 +84,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const SidebarContent = () => (
-    <nav className="flex flex-col h-full justify-between p-3.5">
-      <div className="space-y-2">
+    <nav className="flex flex-col h-full justify-between p-4 bg-sidebar">
+      <div className="space-y-4">
         {/* Brand Logo */}
         <Link
           href="/"
           onClick={handleLinkClick}
-          className="flex items-center gap-2.5 px-3 py-2.5 mb-3 rounded-xl bg-card border border-border/80 hover:border-primary/40 transition-colors group"
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-card/60 border border-border/80 hover:border-primary/40 transition-all group"
         >
           <LogoIcon className="size-6 text-primary group-hover:scale-105 transition-transform" />
           <div className="flex flex-col min-w-0">
-            <span className="font-display font-semibold text-sm tracking-tight text-foreground truncate">
-              PDF AI
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-display font-bold text-sm tracking-tight text-foreground truncate">
+                PDF AI
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-primary/15 text-primary border border-primary/20">
+                PRO
+              </span>
+            </div>
             <span className="font-mono text-[10px] text-muted-foreground truncate">
               Pinecone &amp; Gemini 2.5
             </span>
           </div>
         </Link>
 
-        {/* Navigation Items */}
+        {/* Navigation Section */}
         <div className="space-y-1">
+          <p className="px-3 text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground/80 mb-2">
+            Navigation
+          </p>
           {navItems.map((item, idx) => {
             const Icon = item.icon;
             const active = isItemActive(item.href, item.label);
@@ -117,13 +121,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={idx}
                 href={item.href}
                 onClick={handleLinkClick}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
                   active
-                    ? "bg-primary/15 text-primary font-semibold border border-primary/30 shadow-xs"
-                    : "text-muted-foreground hover:bg-card hover:text-foreground border border-transparent"
+                    ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                    : "text-muted-foreground hover:bg-card/70 hover:text-foreground border border-transparent"
                 }`}
               >
-                <Icon className={`size-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                <Icon className={`size-4 ${active ? "text-primary-foreground" : "text-muted-foreground"}`} />
                 <span className="truncate">{item.label}</span>
               </Link>
             );
@@ -137,10 +141,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           variant="outline"
           size="sm"
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="w-full justify-start gap-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-border/80 rounded-xl font-medium"
+          className="w-full justify-start gap-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-border/80 rounded-xl font-medium cursor-pointer"
         >
           <LogOut className="size-3.5" />
-          Sign Out
+          <span>Sign Out</span>
         </Button>
       </div>
     </nav>
@@ -162,13 +166,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
         {/* Top Navbar */}
-        <header className="h-14 border-b border-border/80 bg-card/80 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-10">
-          <div className="flex items-center gap-2">
+        <header className="h-14 border-b border-border/80 bg-card/70 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 shrink-0 z-10">
+          <div className="flex items-center gap-2.5">
             {/* Mobile Sheet Trigger */}
             {!isLargeScreen && (
               <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8 rounded-lg">
+                  <Button variant="ghost" size="icon" className="size-8 rounded-lg cursor-pointer">
                     <Menu className="size-4" />
                     <span className="sr-only">Toggle Sidebar</span>
                   </Button>
@@ -185,7 +189,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="size-8 rounded-lg text-muted-foreground hover:text-foreground"
+                className="size-8 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
                 title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
               >
                 {isSidebarOpen ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
@@ -193,7 +197,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Button>
             )}
 
-            <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
               <span className="text-foreground font-semibold font-display">PDF AI</span>
               <span>/</span>
               <span className="capitalize">{pathname.replace("/dashboard", "").replace("/", "") || "Workspace"}</span>
@@ -201,6 +205,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Vector DB status indicator */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-mono">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Pinecone 768-dim</span>
+            </div>
+
             <ModeToggle />
             <NavbarProfile />
           </div>
