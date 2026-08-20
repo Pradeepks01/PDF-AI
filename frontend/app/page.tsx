@@ -130,27 +130,28 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/25 selection:text-foreground overflow-x-hidden">
+    <div className="min-h-screen text-foreground relative selection:bg-primary/25 selection:text-foreground overflow-x-hidden">
       
       {/* ---------------- 1. AMBIENT BACKGROUND & FULL PAGE BOX-GRID ---------------- */}
       <div className="landing-bg" aria-hidden="true" />
       <div className="landing-grid-full" aria-hidden="true" />
 
       <div
-        className="absolute top-[-8%] left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] rounded-full blur-[120px] bg-primary/20 pointer-events-none -z-10"
+        className="fixed top-[-8%] left-1/2 -translate-x-1/2 w-[44rem] h-[44rem] rounded-full blur-[120px] bg-primary/20 pointer-events-none z-0"
         aria-hidden="true"
       />
       <div
-        className="absolute top-[36%] right-[-12%] w-[32rem] h-[32rem] rounded-full blur-[120px] bg-accent/30 pointer-events-none -z-10"
+        className="fixed top-[36%] right-[-12%] w-[32rem] h-[32rem] rounded-full blur-[120px] bg-accent/30 pointer-events-none z-0"
         aria-hidden="true"
       />
       <div
-        className="absolute bottom-[8%] left-[-10%] w-[32rem] h-[32rem] rounded-full blur-[120px] bg-primary/10 pointer-events-none -z-10"
+        className="fixed bottom-[8%] left-[-10%] w-[32rem] h-[32rem] rounded-full blur-[120px] bg-primary/10 pointer-events-none z-0"
         aria-hidden="true"
       />
 
-      {/* ---------------- 2. NAV HEADER ---------------- */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+      <div className="relative z-10">
+        {/* ---------------- 2. NAV HEADER ---------------- */}
+        <header className="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           
           {/* Logo + Wordmark */}
@@ -657,6 +658,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   )
 }
