@@ -20,6 +20,7 @@ import {
 import NavbarProfile from "@/components/NavbarProfile";
 import { ModeToggle } from "@/components/ModeToggle";
 import { useSession, signOut } from "next-auth/react";
+import { LogoIcon } from "@/components/LogoIcon";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -50,8 +51,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="size-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center animate-pulse shadow-lg shadow-primary/20">
-            <Sparkles className="size-5" />
+          <div className="size-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center animate-pulse shadow-lg shadow-primary/20">
+            <LogoIcon className="size-6" />
           </div>
           <p className="text-xs text-muted-foreground animate-pulse font-mono">Authenticating session...</p>
         </div>
@@ -96,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className="flex items-center gap-2.5 px-3 py-2.5 mb-3 rounded-xl bg-card border border-border/80 hover:border-primary/40 transition-colors group"
         >
           <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center glow-ring group-hover:scale-105 transition-transform">
-            <Sparkles className="size-4" />
+            <LogoIcon className="size-4" />
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-display font-semibold text-sm tracking-tight text-foreground truncate">

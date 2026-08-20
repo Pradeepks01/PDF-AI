@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
+import { LogoIcon } from '@/components/LogoIcon'
 
 export default function LandingPage() {
   // ---------------- 1. Features Data ----------------
@@ -154,7 +155,7 @@ export default function LandingPage() {
           {/* Logo + Wordmark */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center glow-ring group-hover:scale-105 transition-transform">
-              <Sparkles className="size-5" />
+              <LogoIcon className="size-5" />
             </div>
             <span className="font-display font-bold text-base sm:text-lg tracking-tight text-foreground">
               PDF AI RAG Studio
@@ -530,7 +531,7 @@ export default function LandingPage() {
           <div className="space-y-3 md:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="size-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center glow-ring">
-                <Sparkles className="size-4" />
+                <LogoIcon className="size-4" />
               </div>
               <span className="font-display font-bold text-sm tracking-tight text-foreground">
                 PDF AI RAG Studio
