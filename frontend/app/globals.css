@@ -179,17 +179,11 @@
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -10;
-  background-size: 60px 60px;
+  z-index: -9;
+  background-size: 52px 52px;
   background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
-}
-
-.dark .landing-grid-full {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
 }
 
 .landing-bg {
@@ -198,9 +192,7 @@
   pointer-events: none;
   z-index: -10;
   overflow: hidden;
-  background-image:
-    radial-gradient(140% 90% at 50% 118%, color-mix(in srgb, var(--primary) 25%, transparent) 0%, color-mix(in srgb, var(--primary) 6%, transparent) 45%, transparent 70%),
-    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 8%, var(--background)) 0%, var(--background) 58%);
+  background: linear-gradient(180deg, #2a41d9 0%, #3552f2 35%, #3d5bfd 65%, #5046e5 100%);
 }
 
 /* Reduced motion support */
