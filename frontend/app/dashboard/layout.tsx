@@ -87,25 +87,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <nav className="flex flex-col h-full justify-between p-4 bg-sidebar">
       <div className="space-y-4">
         {/* Brand Logo */}
+        {/* Brand Logo */}
         <Link
           href="/"
           onClick={handleLinkClick}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-card/60 border border-border/80 hover:border-primary/40 transition-all group"
+          className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-card/60 border border-border/80 hover:border-primary/40 transition-all group"
         >
           <LogoIcon className="size-6 text-primary group-hover:scale-105 transition-transform" />
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-display font-bold text-sm tracking-tight text-foreground truncate">
-                PDF AI
-              </span>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-primary/15 text-primary border border-primary/20">
-                PRO
-              </span>
-            </div>
-            <span className="font-mono text-[10px] text-muted-foreground truncate">
-              Pinecone &amp; Gemini 2.5
-            </span>
-          </div>
+          <span className="font-display font-bold text-sm tracking-tight text-foreground truncate">
+            PDF AI
+          </span>
         </Link>
 
         {/* Navigation Section */}
@@ -205,12 +196,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Vector DB status indicator */}
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-mono">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Pinecone 768-dim</span>
-            </div>
-
             <ModeToggle />
             <NavbarProfile />
           </div>
