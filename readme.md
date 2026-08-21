@@ -1,172 +1,105 @@
-# 🧠 PDF AI RAG Studio
+# PDF AI
 
-<p align="center">
-  <img src="frontend/public/globe.svg" width="72" height="72" alt="PDF AI RAG Studio Logo" />
-</p>
-
-<p align="center">
-  <strong>State-of-the-Art Retrieval-Augmented Generation (RAG) Platform for Multi-PDF Documents &amp; Live Web Pages</strong>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-15.3.1-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
-  <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
-  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Pinecone-Serverless_768d-000000?style=for-the-badge&logo=pinecone&logoColor=white" alt="Pinecone" />
-  <img src="https://img.shields.io/badge/Google_Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-v4_OKLCH-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-</p>
+A production-grade Retrieval-Augmented Generation (RAG) platform engineered for grounded querying across multi-page PDF documents and live web pages. The platform pairs a Next.js 15 frontend with a Python FastAPI retrieval backend, utilizing Google Gemini 2.5 Flash and Pinecone serverless vector storage.
 
 ---
 
-## 🌟 Overview
+## Project Impact
 
-**PDF AI RAG Studio** is an enterprise-grade, dark-first AI research assistant engineered for chatting with dense PDF documents and live web pages. 
+### 1. Elimination of Hallucinations with Verifiable Grounding
+Standard large language models struggle with dense factual domain documents, often producing hallucinations or unsupported inferences. PDF AI implements a multi-stage retrieval architecture with context spotlighting and document grading, ensuring that every generated answer is strictly anchored to uploaded document content with precise page and chunk citations.
 
-Powered by a **SOTA 6-stage Python FastAPI retrieval pipeline**, it combines **HyDE query expansion**, **Hybrid Dense (768-dim) + Sparse BM25 scoring**, **Reciprocal Rank Fusion ($k=60$)**, **Cross-Encoder re-ranking**, **CRAG document grading**, and **L8 context spotlighting** to guarantee **100% factual accuracy with zero hallucination**.
+### 2. High-Throughput Multi-Document and Web Synthesis
+Users can ingest multiple dense PDF files and live web documentation simultaneously. By vectorizing content into isolated namespace partitions, the system allows complex cross-document queries, comparative analysis, and instant knowledge synthesis across hundreds of pages in sub-second response times.
+
+### 3. Complete Data Privacy via BYOK (Bring Your Own Key) Architecture
+Enterprise and research workflows demand stringent confidentiality. PDF AI features a client-side API Key Vault that stores personal Pinecone and Google Gemini keys in local browser storage. Keys are transmitted only in ephemeral request headers directly to processing services, ensuring zero persistent server-side credential storage or third-party telemetry.
+
+### 4. Accelerated Research and Operational Efficiency
+By combining automated PDF chunking, Trafilatura web crawling, speech-to-text dictation, and one-click markdown exports, PDF AI reduces manual document analysis time from hours to seconds for legal, academic, financial, and technical domains.
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph INGESTION["1. Document & Web Ingestion"]
-        PDF["📄 Multi-Page PDFs"] --> PyPDF["PyPDF Parser"]
-        WEB["🌐 Live Web URLs"] --> Traf["Trafilatura + BeautifulSoup4"]
-        PyPDF --> Chunk["RecursiveCharacterTextSplitter<br/>(1000 chars, 150 overlap)"]
+    subgraph INGESTION["1. Document and Web Ingestion"]
+        PDF["Multi-Page PDFs"] --> PyPDF["PyPDF Parser"]
+        WEB["Live Web URLs"] --> Traf["Trafilatura and BeautifulSoup4"]
+        PyPDF --> Chunk["RecursiveCharacterTextSplitter (1000 chars, 150 overlap)"]
         Traf --> Chunk
     end
 
-    subgraph VECTOR_STORE["2. Vector Embedding & Storage"]
-        Chunk --> BatchEmb["Gemini 768-dim Batch Embeddings<br/>(gemini-embedding-001)"]
-        BatchEmb --> Pinecone[("🌲 Pinecone Serverless<br/>Namespaces: col-*, web-*")]
+    subgraph VECTOR_STORE["2. Vector Embedding and Storage"]
+        Chunk --> BatchEmb["Gemini 768-dim Batch Embeddings (gemini-embedding-001)"]
+        BatchEmb --> Pinecone[("Pinecone Serverless Vector Database (Namespaces: col-*, web-*)")]
     end
 
-    subgraph SOTA_PIPELINE["3. SOTA 6-Stage Retrieval Engine"]
-        UserQuery["🔍 User Query"] --> HyDE["Stage 01: HyDE Expansion<br/>(Hypothetical Answer Passage)"]
+    subgraph SOTA_PIPELINE["3. 6-Stage Advanced Retrieval Engine"]
+        UserQuery["User Query"] --> HyDE["Stage 01: HyDE Expansion (Hypothetical Passage)"]
         HyDE --> Dense["Stage 02A: Dense 768-dim Search"]
         UserQuery --> Sparse["Stage 02B: Lexical BM25 Scoring"]
-        Dense & Sparse --> RRF["Stage 03: Reciprocal Rank Fusion (k=60)<br/>RRF(d) = Σ 1/(60 + rank(d))"]
-        RRF --> CrossEnc["Stage 04: Cross-Encoder Re-Ranking<br/>(Semantic Cross-Attention)"]
-        CrossEnc --> CRAG["Stage 05: CRAG Document Grader<br/>(CORRECT / AMBIGUOUS / INCORRECT)"]
-        CRAG --> Spotlight["Stage 06: L8 Context Spotlighting<br/>[SPOTLIGHT_START/END]"]
+        Dense & Sparse --> RRF["Stage 03: Reciprocal Rank Fusion (k=60)"]
+        RRF --> CrossEnc["Stage 04: Cross-Encoder Re-Ranking"]
+        CrossEnc --> CRAG["Stage 05: CRAG Document Grader"]
+        CRAG --> Spotlight["Stage 06: L8 Context Spotlighting"]
     end
 
     subgraph SYNTHESIS["4. Grounded Synthesis"]
-        Spotlight --> Gemini["⚡ Google Gemini 2.5 Flash<br/>(Multi-Model Quota Fallback)"]
-        Gemini --> Response["💬 Grounded Response with Page Citations<br/>[Document.pdf, Page X, Chunk #Y]"]
+        Spotlight --> Gemini["Google Gemini 2.5 Flash (Multi-Model Failover)"]
+        Gemini --> Response["Grounded Response with Inline Page Citations"]
     end
 ```
 
----
+### Retrieval Pipeline Stages
 
-## ✨ Key Features
-
-* **⚡ SOTA 6-Stage RAG Pipeline**:
-  1. **HyDE (Hypothetical Document Embeddings)**: Generates hypothetical expert passages to eliminate vocabulary mismatches.
-  2. **Hybrid Retrieval**: Combines 768-dim cosine dense vectors with lexical BM25 term frequency.
-  3. **Reciprocal Rank Fusion (RRF $k=60$)**: Merges and re-scores multiple candidate ranking streams into balanced top-k candidates.
-  4. **Cross-Encoder Re-Ranking**: Evaluates deep query-passage semantic cross-attention.
-  5. **CRAG Document Grader**: Classifies retrieved candidates (`CORRECT`, `AMBIGUOUS`, `INCORRECT`) to discard irrelevant noise.
-  6. **L8 Context Spotlighting**: Wraps verified evidence in structured boundaries for strictly cited answers.
-
-* **📄 Multi-PDF Vector Collections**:
-  * Drop single or multiple PDF documents into isolated Pinecone namespaces (`col-{id}`).
-  * Vectorizes text chunks in high-throughput parallel batches of 20 (< 1.5s for 25+ chunks).
-
-* **🌐 Real-Time Web Crawler**:
-  * Scrapes live documentation and web articles with **Trafilatura** & **BeautifulSoup4**.
-  * Converts web content to clean markdown, creates 768-dim embeddings, and stores vectors under `web-{id}`.
-
-* **🎙️ Voice-to-Text Dictation**:
-  * Native Web Speech API speech-to-text integration directly inside the chat input bar.
-
-* **📥 1-Click Markdown Export**:
-  * Export entire conversation threads with verbatim quotes, timestamps, and inline source page citations as `.md` files.
-
-* **🔑 Bring Your Own Keys (BYOK) Vault**:
-  * Store personal Pinecone (`pcsk_...`) and Google Gemini (`AQ...`) keys securely in local browser storage. Keys are forwarded via request headers and never persisted on external servers.
-
-* **🛡️ Multi-Model Quota Resilience**:
-  * Automated failover across `gemini-flash-lite-latest`, `gemini-2.5-flash`, `gemini-3.7-flash`, and `gemini-pro`.
-
-* **🌗 Modern Dark-First OKLCH Design System**:
-  * Signal Cyan primary color scheme (`oklch(0.78 0.13 192)`), Space Grotesk headings, DM Sans body typography, 1-click smooth theme toggle, and Framer Motion micro-interactions.
+1. **HyDE (Hypothetical Document Embeddings)**: Generates a speculative expert passage to capture semantic intent, eliminating vocabulary mismatches between user queries and raw document text.
+2. **Hybrid Retrieval (Dense + Sparse)**: Concurrently computes 768-dimensional cosine similarity vectors and BM25 lexical term scores to balance semantic depth with exact keyword matching.
+3. **Reciprocal Rank Fusion (RRF $k=60$)**: Synthesizes multiple rank positions into a single unified score using the formula:
+   $$RRF(d) = \sum_{m \in M} \frac{1}{60 + r_m(d)}$$
+4. **Cross-Encoder Semantic Re-Ranking**: Performs deep cross-attention evaluations over top candidate pairs to re-score relevance with high precision.
+5. **Corrective RAG (CRAG) Document Grader**: Classifies passages into `CORRECT`, `AMBIGUOUS`, or `INCORRECT`, discarding non-relevant chunks before synthesis.
+6. **L8 Context Spotlighting**: Encloses verified factual chunks in strict spotlight boundaries, guiding the generator to cite source files, page numbers, and exact quotes.
 
 ---
 
-## 📁 Repository Structure
+## Tech Stack
 
-```
-pdfrag/
-├── frontend/                     # Next.js 15 + React 19 Frontend
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── auth/             # NextAuth Google OAuth & Credentials
-│   │   │   ├── apikey/           # User API Key vault endpoints
-│   │   │   ├── ip/               # Real client IP resolver
-│   │   │   ├── me/               # User session inspector
-│   │   │   └── python-health/    # Server-side health proxy for FastAPI
-│   │   ├── dashboard/
-│   │   │   ├── account/          # BYOK Vault & Account Profile
-│   │   │   ├── web-loader/       # Real-time Web Page Crawler
-│   │   │   ├── web-links/        # Indexed URLs Catalog
-│   │   │   ├── layout.tsx        # Signal Cyan dashboard sidebar shell
-│   │   │   └── page.tsx          # Main ChatGPT-style RAG workspace
-│   │   ├── sign-in/              # Google & Email Authentication
-│   │   ├── globals.css           # OKLCH Design Tokens & Utilities
-│   │   ├── layout.tsx            # Root layout with Google Fonts
-│   │   └── page.tsx              # Landing page with 6-stage visualizer
-│   ├── components/
-│   │   ├── ChatComponent.tsx     # Modal RAG Chat for web crawler
-│   │   ├── ChatGPTWorkspace.tsx  # Multi-PDF chat with voice, citations & export
-│   │   ├── ModeToggle.tsx        # 1-Click Sun/Moon theme switch button
-│   │   ├── NavbarProfile.tsx     # User avatar & account menu
-│   │   ├── theme-provider.tsx    # NextThemes wrapper
-│   │   └── ui/                   # Radix UI primitives
-│   └── lib/                      # Auth, Axios, Python Client, Local Storage
-│
-├── python_backend/               # Python FastAPI RAG Service
-│   ├── config.py                 # Pinecone & Gemini configuration
-│   ├── main.py                   # FastAPI REST API & SSE streaming
-│   ├── requirements.txt          # Python dependencies
-│   └── services/
-│       ├── ai_service.py         # SOTA 6-Stage Engine & Batch Embeddings
-│       ├── document_processor.py # PDF & Trafilatura Web Scraper
-│       └── pinecone_service.py   # Pinecone Serverless Vector Store
-│
-├── docker-compose.yml            # Docker Compose multi-service config
-└── readme.md                     # Project documentation
-```
-
----
-
-## 📡 API Reference
-
-### Python FastAPI Backend (`http://127.0.0.1:8000`)
-
-| Method | Endpoint | Description |
+| Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| `GET` | `/api/health` | Service health status, Vector DB, and active LLM |
-| `POST` | `/api/upload` | Upload PDF file, chunk, batch embed, and upsert to Pinecone |
-| `POST` | `/api/web/crawl` | Scrape live URL, extract markdown, batch embed, and upsert to Pinecone |
-| `POST` | `/api/chat` | Execute SOTA 6-stage RAG query and return grounded answer with citations |
-| `POST` | `/api/chat/stream` | Stream AI answer tokens in real-time (Server-Sent Events) |
-| `DELETE`| `/api/namespace/{ns}`| Delete all vectors in a specific Pinecone namespace |
+| **Frontend Framework** | Next.js 15 (App Router), React 19 | Server and client rendering, route handlers, dynamic layout architecture |
+| **Language** | TypeScript, Python 3.10+ | End-to-end type safety and backend computational efficiency |
+| **Styling & UI** | Tailwind CSS v4, Radix UI Primitives, Lucide Icons | Responsive glassmorphic interface, dark/light theme tokens |
+| **Backend Framework** | FastAPI, Uvicorn, Pydantic | High-performance asynchronous REST endpoints and Server-Sent Events |
+| **Vector Database** | Pinecone Serverless (768 dimensions) | Scalable vector indexing with isolated namespace partitioning |
+| **LLM & Embeddings** | Google Gemini 2.5 Flash, Gemini Embedding | Sub-second generative answers, semantic embeddings, quota failover |
+| **Parsing & Ingestion** | PyPDF, Trafilatura, BeautifulSoup4 | Multi-page PDF extraction and live web scraping |
+| **Authentication** | NextAuth.js, Google OAuth 2.0, Credentials | Secure JWT sessions, PBKDF2 SHA-512 password hashing |
+| **State & Data** | TanStack React Query, Sonner | Optimistic mutations, real-time toast notifications, cache management |
+| **Deployment** | Vercel (Frontend), Render (Backend), Docker | Automated continuous integration and containerized hosting |
 
 ---
 
-## 🚀 Quickstart Guide
+## Installation
 
 ### Prerequisites
-* **Node.js**: `v20+` or `v22+`
-* **Python**: `3.10+`
-* **API Keys**: [Pinecone API Key](https://app.pinecone.io) and [Google Gemini API Key](https://aistudio.google.com)
+* **Node.js**: `v20.x` or `v22.x`
+* **Python**: `3.10` or higher
+* **Package Managers**: `npm` and `pip`
+* **API Keys**: [Google AI Studio (Gemini)](https://aistudio.google.com) and [Pinecone](https://app.pinecone.io)
 
 ---
 
-### 1. Configure Environment Variables
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/Pradeepks01/PDF-AI.git
+cd PDF-AI
+```
+
+---
+
+### Step 2: Configure Environment Variables
 
 #### Python Backend (`python_backend/.env`):
 ```env
@@ -180,38 +113,140 @@ HOST=0.0.0.0
 #### Frontend (`frontend/.env.local`):
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXTAUTH_SECRET=your_nextauth_secret_key_here
+NEXTAUTH_SECRET=your_nextauth_secret_key_minimum_32_characters
 NEXTAUTH_URL=http://localhost:3000
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 DATABASE_URL=file:./dev.db
 ```
 
 ---
 
-### 2. Start Python FastAPI Backend
-```bash
-cd python_backend
-pip install -r requirements.txt
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-*Backend runs on: `http://127.0.0.1:8000` (API Docs: `http://127.0.0.1:8000/docs`)*
+### Step 3: Run Python FastAPI Backend
+
+1. Navigate to the backend directory:
+   ```bash
+   cd python_backend
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\activate
+
+   # macOS / Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Start the development server:
+   ```bash
+   python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+   The backend API will be available at `http://127.0.0.1:8000` (Interactive Swagger Docs: `http://127.0.0.1:8000/docs`).
 
 ---
 
-### 3. Start Next.js Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-*Frontend runs on: `http://localhost:3000`*
+### Step 4: Run Next.js Frontend
+
+1. Open a new terminal and navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Generate Prisma client:
+   ```bash
+   npx prisma generate
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   The application will be accessible at `http://localhost:3000`.
 
 ---
 
-## 🐳 Docker Deployment
+## Deployment
 
-Run both the frontend and backend with a single command:
+### Frontend Deployment (Vercel)
+
+1. Import the repository into [Vercel](https://vercel.com).
+2. Set the **Root Directory** to `frontend`.
+3. Configure the build settings:
+   * **Framework Preset**: Next.js
+   * **Build Command**: `prisma generate && next build`
+   * **Output Directory**: `.next`
+4. Add the production environment variables in the Vercel dashboard:
+   * `NEXT_PUBLIC_API_URL` (URL of the deployed FastAPI backend, e.g., `https://pdf-ai-xckr.onrender.com`)
+   * `NEXTAUTH_URL` (Production frontend URL, e.g., `https://pdf-ai-puce.vercel.app`)
+   * `NEXTAUTH_SECRET`
+   * `GOOGLE_CLIENT_ID`
+   * `GOOGLE_CLIENT_SECRET`
+5. Click **Deploy**.
+
+---
+
+### Backend Deployment (Render / Cloud Container)
+
+1. Create a new **Web Service** on [Render](https://render.com) linked to the repository.
+2. Set the **Root Directory** to `python_backend`.
+3. Configure runtime settings:
+   * **Environment**: Python 3
+   * **Build Command**: `pip install -r requirements.txt`
+   * **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+4. Add environment variables:
+   * `PINECONE_API_KEY`
+   * `PINECONE_INDEX_NAME`
+   * `GEMINI_API_KEY`
+   * `PYTHON_VERSION` = `3.11.0`
+5. Deploy the service and note the public URL.
+
+---
+
+### Docker Deployment
+
+Run the complete stack locally using Docker Compose:
+
 ```bash
 docker-compose up --build
 ```
+
+To run in detached mode:
+```bash
+docker-compose up -d --build
+```
+
+---
+
+## API Reference
+
+### Backend Endpoints (`http://127.0.0.1:8000`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Verifies service health, active vector database, and primary LLM status. |
+| `POST` | `/api/upload` | Ingests PDF documents, extracts text, generates 768-dim embeddings, and upserts vectors into Pinecone. |
+| `POST` | `/api/web/crawl` | Crawls target URL, extracts markdown, embeds text chunks, and indexes into Pinecone. |
+| `POST` | `/api/chat` | Executes the 6-stage retrieval pipeline and returns a grounded answer with citations. |
+| `POST` | `/api/chat/stream` | Streams AI response tokens in real-time via Server-Sent Events (SSE). |
+| `DELETE` | `/api/namespace/{ns}` | Purges all indexed vector embeddings within the specified namespace. |
+
+### Frontend Auth Endpoints
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/[...nextauth]` | Handles Google OAuth and Credentials session management. |
+| `POST` | `/api/auth/reset-password` | Resets user password using PBKDF2 SHA-512 salted hashing. |
+| `GET` | `/api/python-health` | Server-side proxy check for Python backend availability. |
+
+---
+
+## License
+
+This project is licensed under the MIT License.
