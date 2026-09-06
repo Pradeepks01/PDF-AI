@@ -22,6 +22,7 @@ import {
   getChatSessions, saveChatSessions, createChatSession, 
   addMessageToSession, addPdfToSession, deleteChatSession 
 } from '@/lib/chatStorage'
+import RAGEvaluationBadge from '@/components/RAGEvaluationBadge'
 
 export default function ChatGPTWorkspace() {
   const { data: authSession } = useSession()
@@ -274,13 +275,15 @@ export default function ChatGPTWorkspace() {
       if (!currentSession) return
       const aiResponseText = data.response
 
-      // Add Bot Message with Sources
+      // Add Bot Message with Sources and Evaluation
       const botMsg: ChatMessage = {
         id: `msg_bot_${Date.now()}`,
         type: 'bot',
         text: aiResponseText,
         timestamp: new Date().toISOString(),
-        sources: data.sources || []
+        sources: data.sources || [],
+        evaluation: data.evaluation,
+        guardrails: data.guardrails
       }
       addMessageToSession(currentSession.id, botMsg, userEmail)
       setSessions(getChatSessions(userEmail))
@@ -682,6 +685,14 @@ export default function ChatGPTWorkspace() {
                           </div>
                         )}
                       </div>
+                    )}
+
+                    {/* RAG Triad Evaluation & Guardrails Badge */}
+                    {msg.type === 'bot' && (
+                      <RAGEvaluationBadge
+                        evaluation={msg.evaluation}
+                        guardrails={msg.guardrails}
+                      />
                     )}
                   </div>
                 </div>

@@ -11,19 +11,22 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Heade
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import uvicorn
 import traceback
+import time
 
 from config import settings
 from services.document_processor import DocumentProcessor
 from services.ai_service import AIService
 from services.pinecone_service import PineconeService
+from services.guardrails_service import GuardrailsService
+from services.evaluation_service import RAGEvaluationService
 
 app = FastAPI(
     title="PDF & Web RAG API",
-    description="Python FastAPI backend for RAG using Pinecone Vector DB and Google Gemini 2.5 Flash",
-    version="1.0.0"
+    description="Python FastAPI backend for RAG with Guardrails & Triad Evaluation",
+    version="1.1.0"
 )
 
 # Enable full open CORS for Next.js frontend
@@ -39,6 +42,8 @@ app.add_middleware(
 doc_processor = DocumentProcessor()
 ai_service = AIService()
 pinecone_service = PineconeService()
+guardrails_service = GuardrailsService()
+evaluation_service = RAGEvaluationService()
 
 # Request Models
 class WebCrawlRequest(BaseModel):
@@ -55,13 +60,19 @@ class WebChatQueryRequest(BaseModel):
     url_id: str
     top_k: Optional[int] = 3
 
+class BenchmarkEvaluationRequest(BaseModel):
+    query: str
+    response: str
+    contexts: List[Dict[str, Any]]
+
 
 @app.get("/")
 def root():
     return {
         "message": "Welcome to the PDF & Web RAG API",
         "docs": "http://localhost:8000/docs",
-        "health": "http://localhost:8000/api/health"
+        "health": "http://localhost:8000/api/health",
+        "features": ["SOTA 6-Stage RAG", "Input/Output Guardrails", "RAG Triad Evaluation"]
     }
 
 
@@ -71,7 +82,9 @@ def health_check():
         "status": "online",
         "service": "Python Pinecone RAG Backend",
         "vector_db": "Pinecone",
-        "llm": "Google Gemini 2.5 Flash"
+        "llm": "Google Gemini 2.5 Flash",
+        "guardrails": "Active (Jailbreak & Hallucination Defense)",
+        "evaluation": "Active (Faithfulness, Relevance, Precision)"
     }
 
 
@@ -211,7 +224,7 @@ def run_sota_retrieval(
     custom_gemini_key: str = None, 
     custom_pinecone_key: str = None
 ) -> List[dict]:
-    """Execute SOTA RAG Pipeline: HyDE ➔ Hybrid Dense/Sparse ➔ RRF (k=60) ➔ Cross-Encoder ➔ CRAG Grader."""
+    """Execute SOTA RAG Pipeline: HyDE -> Hybrid Dense/Sparse -> RRF (k=60) -> Cross-Encoder -> CRAG Grader."""
     try:
         # 1. Dense Vector Retrieval on user query
         query_emb = ai_service.generate_embedding(query, custom_api_key=custom_gemini_key)
@@ -273,8 +286,33 @@ async def chat_pdf_rag(
     x_gemini_api_key: Optional[str] = Header(None),
     x_pinecone_api_key: Optional[str] = Header(None)
 ):
-    """SOTA RAG Chat query endpoint using HyDE + Hybrid Dense/Sparse + RRF (k=60) + Cross-Encoder + CRAG + L8."""
+    """SOTA RAG Chat query endpoint with Input/Output Guardrails and RAG Triad Evaluation."""
+    start_time = time.time()
     try:
+        # 1. Input Guardrails Audit
+        input_guardrail = guardrails_service.validate_input(payload.query)
+        if not input_guardrail["passed"]:
+            return {
+                "statusCode": 200,
+                "message": "Guardrail Interception",
+                "data": {
+                    "response": f"🛡️ **Safety Guardrail Triggered**: {input_guardrail['reason']}. Please refine your query.",
+                    "sources": [],
+                    "guardrails": {
+                        "input": input_guardrail,
+                        "output": {"passed": False, "status": "BLOCKED_BY_INPUT_GUARDRAIL", "grounded": False}
+                    },
+                    "evaluation": {
+                        "faithfulness": 1.0,
+                        "answer_relevance": 0.0,
+                        "context_precision": 0.0,
+                        "overall_score": 0.0,
+                        "grade": "GUARDRAIL_BLOCKED"
+                    }
+                }
+            }
+
+        # 2. SOTA Retrieval Pipeline
         namespace = resolve_namespace(payload.collection_id)
         final_context = run_sota_retrieval(
             query=payload.query,
@@ -284,18 +322,36 @@ async def chat_pdf_rag(
             custom_pinecone_key=x_pinecone_api_key
         )
 
-        answer = ai_service.generate_rag_answer(
+        # 3. Grounded Synthesis
+        raw_answer = ai_service.generate_rag_answer(
             query=payload.query,
             context_matches=final_context,
             custom_api_key=x_gemini_api_key
         )
 
+        # 4. Output Guardrails Audit
+        output_guardrail = guardrails_service.audit_output(raw_answer, final_context)
+        sanitized_answer = output_guardrail.get("cleaned_text", raw_answer)
+
+        # 5. RAG Triad Evaluation Metrics
+        evaluation_metrics = evaluation_service.evaluate(
+            query=payload.query,
+            response=sanitized_answer,
+            context_chunks=final_context
+        )
+        evaluation_metrics["latency_ms"] = round((time.time() - start_time) * 1000, 1)
+
         return {
             "statusCode": 200,
             "message": "Success",
             "data": {
-                "response": answer,
-                "sources": final_context
+                "response": sanitized_answer,
+                "sources": final_context,
+                "guardrails": {
+                    "input": input_guardrail,
+                    "output": output_guardrail
+                },
+                "evaluation": evaluation_metrics
             }
         }
     except Exception as e:
@@ -312,8 +368,15 @@ async def chat_pdf_rag_stream(
     x_gemini_api_key: Optional[str] = Header(None),
     x_pinecone_api_key: Optional[str] = Header(None)
 ):
-    """Real-time Server-Sent Events (SSE) streaming endpoint with SOTA RAG Pipeline."""
+    """Real-time Server-Sent Events (SSE) streaming endpoint with SOTA RAG Pipeline & Guardrails."""
     try:
+        # Input Guardrail check
+        input_guardrail = guardrails_service.validate_input(query)
+        if not input_guardrail["passed"]:
+            async def refusal_stream():
+                yield f"data: 🛡️ **Safety Guardrail Triggered**: {input_guardrail['reason']}.\n\n"
+            return StreamingResponse(refusal_stream(), media_type="text/event-stream")
+
         namespace = resolve_namespace(collection_id)
         final_context = run_sota_retrieval(
             query=query,
@@ -332,6 +395,28 @@ async def chat_pdf_rag_stream(
     except Exception as e:
         print(f"[ERROR] Stream Exception: {e}")
         traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/eval/benchmark")
+async def evaluate_benchmark(payload: BenchmarkEvaluationRequest):
+    """Run standalone RAG Triad evaluation metrics on query, response, and document contexts."""
+    try:
+        guardrail_in = guardrails_service.validate_input(payload.query)
+        guardrail_out = guardrails_service.audit_output(payload.response, payload.contexts)
+        eval_result = evaluation_service.evaluate(payload.query, payload.response, payload.contexts)
+
+        return {
+            "statusCode": 200,
+            "data": {
+                "guardrails": {
+                    "input": guardrail_in,
+                    "output": guardrail_out
+                },
+                "evaluation": eval_result
+            }
+        }
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 

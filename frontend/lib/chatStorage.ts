@@ -5,12 +5,39 @@ export interface AttachedPdf {
   uploadedAt: string;
 }
 
+export interface RAGEvaluationMetrics {
+  faithfulness: number;
+  answer_relevance: number;
+  context_precision: number;
+  overall_score: number;
+  grade: string;
+  latency_ms?: number;
+  eval_method?: string;
+}
+
+export interface RAGGuardrails {
+  input?: {
+    passed: boolean;
+    reason: string;
+    risk_level?: string;
+    action?: string;
+  };
+  output?: {
+    passed: boolean;
+    status: string;
+    grounded?: boolean;
+    grounding_ratio?: number;
+  };
+}
+
 export interface ChatMessage {
   id: string;
   type: 'user' | 'bot';
   text: string;
   timestamp: string;
   sources?: any[];
+  evaluation?: RAGEvaluationMetrics;
+  guardrails?: RAGGuardrails;
 }
 
 export interface ChatSession {
@@ -74,7 +101,18 @@ export const createChatSession = (title: string = 'New Chat', userEmail?: string
         id: `msg_welcome_${Date.now()}`,
         type: 'bot',
         text: 'Hello! How can I help you today? Upload or attach PDF documents to ask questions, extract insights, and analyze content.',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        evaluation: {
+          faithfulness: 1.0,
+          answer_relevance: 1.0,
+          context_precision: 1.0,
+          overall_score: 1.0,
+          grade: 'EXCELLENT'
+        },
+        guardrails: {
+          input: { passed: true, reason: 'System Welcome' },
+          output: { passed: true, status: 'PASSED', grounded: true }
+        }
       }
     ]
   };

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
     crawler.maxDepth = 3;
     crawler.downloadUnsupported = false;
-    crawler.userAgent = 'Mozilla/5.0 (compatible; MyCrawler/1.0)';
+    crawler.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36';
     crawler.maxConcurrency = 5;
 
     const blockedExtensions = [

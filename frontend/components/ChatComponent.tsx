@@ -9,6 +9,7 @@ import pythonAxios from '@/lib/python-axios';
 import ReactMarkdown from 'react-markdown';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import RAGEvaluationBadge from '@/components/RAGEvaluationBadge';
 
 const dummyMessages = [
   { type: 'bot', text: 'Hello! How can I help you today? Ask any question about this indexed website content.' },
@@ -89,14 +90,18 @@ const ChatComponent = ({ id }: { id: string }) => {
     onSuccess: (data) => {
       const responseText = data.response;
       const sources = data.sources || [];
+      const evaluation = data.evaluation;
+      const guardrails = data.guardrails;
 
-      // Replace generating placeholder with actual AI response + sources
+      // Replace generating placeholder with actual AI response + sources + evaluation
       setMessages(prev => [
         ...prev.slice(0, -1),
         {
           type: 'bot',
           text: responseText,
-          sources: sources
+          sources: sources,
+          evaluation: evaluation,
+          guardrails: guardrails
         }
       ]);
     },
@@ -175,10 +180,18 @@ const ChatComponent = ({ id }: { id: string }) => {
                         </span>
                       </div>
                     ) : (
-                      <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed">
-                        <ReactMarkdown>
-                          {msg?.text}
-                        </ReactMarkdown>
+                      <div className="space-y-2">
+                        <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed">
+                          <ReactMarkdown>
+                            {msg?.text}
+                          </ReactMarkdown>
+                        </div>
+                        {msg.type === 'bot' && (
+                          <RAGEvaluationBadge
+                            evaluation={msg.evaluation}
+                            guardrails={msg.guardrails}
+                          />
+                        )}
                       </div>
                     )}
                   </div>

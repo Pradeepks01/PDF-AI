@@ -1,22 +1,28 @@
 # PDF AI
 
-A production-grade Retrieval-Augmented Generation (RAG) platform engineered for grounded querying across multi-page PDF documents and live web pages. The platform pairs a Next.js 15 frontend with a Python FastAPI retrieval backend, utilizing Google Gemini 2.5 Flash and Pinecone serverless vector storage.
+A production-grade Retrieval-Augmented Generation (RAG) platform engineered for grounded querying across multi-page PDF documents and live web pages. The platform pairs a Next.js 15 frontend with a Python FastAPI retrieval backend, utilizing Google Gemini 2.5 Flash, Pinecone serverless vector storage, real-time security guardrails, and automated RAG Triad evaluation metrics.
 
 ---
 
 ## Project Impact
 
 ### 1. Elimination of Hallucinations with Verifiable Grounding
-Standard large language models struggle with dense factual domain documents, often producing hallucinations or unsupported inferences. PDF AI implements a multi-stage retrieval architecture with context spotlighting and document grading, ensuring that every generated answer is strictly anchored to uploaded document content with precise page and chunk citations.
+Standard large language models struggle with dense factual domain documents, often producing hallucinations or unsupported inferences. PDF AI implements a multi-stage retrieval architecture with context spotlighting, document grading, and automated output verification, ensuring that every generated answer is strictly anchored to uploaded document content with precise page and chunk citations.
 
-### 2. High-Throughput Multi-Document and Web Synthesis
+### 2. Enterprise Security with Real-Time Guardrails
+To protect against adversarial inputs and unintended data exposure, the platform features a multi-tiered guardrails layer. Input guardrails actively detect and intercept prompt injection and jailbreak attempts before database or LLM execution, while output guardrails verify factual alignment against retrieved passages and redact sensitive PII patterns.
+
+### 3. Quantitative Quality Measurement via RAG Triad Evaluation
+Rather than relying on subjective review, each query response computes objective RAG Triad evaluation metrics in real time:
+* **Faithfulness (Groundedness)**: Quantifies the percentage of claims directly backed by document context.
+* **Answer Relevancy**: Evaluates how concisely and directly the response answers the specific prompt.
+* **Context Precision**: Measures the signal-to-noise ratio in retrieved vector chunks.
+
+### 4. High-Throughput Multi-Document and Web Synthesis
 Users can ingest multiple dense PDF files and live web documentation simultaneously. By vectorizing content into isolated namespace partitions, the system allows complex cross-document queries, comparative analysis, and instant knowledge synthesis across hundreds of pages in sub-second response times.
 
-### 3. Complete Data Privacy via BYOK (Bring Your Own Key) Architecture
+### 5. Complete Data Privacy via BYOK (Bring Your Own Key) Architecture
 Enterprise and research workflows demand stringent confidentiality. PDF AI features a client-side API Key Vault that stores personal Pinecone and Google Gemini keys in local browser storage. Keys are transmitted only in ephemeral request headers directly to processing services, ensuring zero persistent server-side credential storage or third-party telemetry.
-
-### 4. Accelerated Research and Operational Efficiency
-By combining automated PDF chunking, Trafilatura web crawling, speech-to-text dictation, and one-click markdown exports, PDF AI reduces manual document analysis time from hours to seconds for legal, academic, financial, and technical domains.
 
 ---
 
@@ -36,31 +42,39 @@ flowchart TD
         BatchEmb --> Pinecone[("Pinecone Serverless Vector Database (Namespaces: col-*, web-*)")]
     end
 
-    subgraph SOTA_PIPELINE["3. 6-Stage Advanced Retrieval Engine"]
-        UserQuery["User Query"] --> HyDE["Stage 01: HyDE Expansion (Hypothetical Passage)"]
+    subgraph GUARDRAILS_INPUT["3. Input Security Guardrails"]
+        UserQuery["User Query"] --> GuardIn["Input Guardrail: Jailbreak, Prompt Injection and PII Audit"]
+    end
+
+    subgraph SOTA_PIPELINE["4. 6-Stage Advanced Retrieval Engine"]
+        GuardIn --> HyDE["Stage 01: HyDE Expansion (Hypothetical Passage)"]
         HyDE --> Dense["Stage 02A: Dense 768-dim Search"]
-        UserQuery --> Sparse["Stage 02B: Lexical BM25 Scoring"]
+        GuardIn --> Sparse["Stage 02B: Lexical BM25 Scoring"]
         Dense & Sparse --> RRF["Stage 03: Reciprocal Rank Fusion (k=60)"]
         RRF --> CrossEnc["Stage 04: Cross-Encoder Re-Ranking"]
         CrossEnc --> CRAG["Stage 05: CRAG Document Grader"]
         CRAG --> Spotlight["Stage 06: L8 Context Spotlighting"]
     end
 
-    subgraph SYNTHESIS["4. Grounded Synthesis"]
+    subgraph SYNTHESIS["5. Grounded Synthesis and Verification"]
         Spotlight --> Gemini["Google Gemini 2.5 Flash (Multi-Model Failover)"]
-        Gemini --> Response["Grounded Response with Inline Page Citations"]
+        Gemini --> GuardOut["Output Guardrail: Hallucination and Safety Audit"]
+        GuardOut --> Eval["RAG Triad Evaluator: Faithfulness, Relevance, Precision"]
+        Eval --> Response["Grounded Response with Inline Citations and Quality Badge"]
     end
 ```
 
-### Retrieval Pipeline Stages
+### Retrieval and Evaluation Pipeline Stages
 
-1. **HyDE (Hypothetical Document Embeddings)**: Generates a speculative expert passage to capture semantic intent, eliminating vocabulary mismatches between user queries and raw document text.
-2. **Hybrid Retrieval (Dense + Sparse)**: Concurrently computes 768-dimensional cosine similarity vectors and BM25 lexical term scores to balance semantic depth with exact keyword matching.
-3. **Reciprocal Rank Fusion (RRF $k=60$)**: Synthesizes multiple rank positions into a single unified score using the formula:
+1. **Input Security Guardrail**: Scans queries for prompt injection patterns, system prompt overrides, and PII before executing vector retrieval.
+2. **HyDE (Hypothetical Document Embeddings)**: Generates a speculative expert passage to capture semantic intent, eliminating vocabulary mismatches between user queries and raw document text.
+3. **Hybrid Retrieval (Dense + Sparse)**: Concurrently computes 768-dimensional cosine similarity vectors and BM25 lexical term scores to balance semantic depth with exact keyword matching.
+4. **Reciprocal Rank Fusion (RRF $k=60$)**: Synthesizes multiple rank positions into a single unified score using the formula:
    $$RRF(d) = \sum_{m \in M} \frac{1}{60 + r_m(d)}$$
-4. **Cross-Encoder Semantic Re-Ranking**: Performs deep cross-attention evaluations over top candidate pairs to re-score relevance with high precision.
-5. **Corrective RAG (CRAG) Document Grader**: Classifies passages into `CORRECT`, `AMBIGUOUS`, or `INCORRECT`, discarding non-relevant chunks before synthesis.
-6. **L8 Context Spotlighting**: Encloses verified factual chunks in strict spotlight boundaries, guiding the generator to cite source files, page numbers, and exact quotes.
+5. **Cross-Encoder Semantic Re-Ranking**: Performs deep cross-attention evaluations over top candidate pairs to re-score relevance with high precision.
+6. **Corrective RAG (CRAG) Document Grader**: Classifies passages into `CORRECT`, `AMBIGUOUS`, or `INCORRECT`, discarding non-relevant chunks before synthesis.
+7. **L8 Context Spotlighting**: Encloses verified factual chunks in strict spotlight boundaries, guiding the generator to cite source files, page numbers, and exact quotes.
+8. **Output Guardrails and Triad Evaluation**: Performs post-generation hallucination checks and calculates real-time Faithfulness, Answer Relevancy, and Context Precision scores.
 
 ---
 
@@ -74,6 +88,7 @@ flowchart TD
 | **Backend Framework** | FastAPI, Uvicorn, Pydantic | High-performance asynchronous REST endpoints and Server-Sent Events |
 | **Vector Database** | Pinecone Serverless (768 dimensions) | Scalable vector indexing with isolated namespace partitioning |
 | **LLM & Embeddings** | Google Gemini 2.5 Flash, Gemini Embedding | Sub-second generative answers, semantic embeddings, quota failover |
+| **Guardrails & Evaluation** | Custom Security Shield, RAG Triad Evaluator | Real-time jailbreak defense, hallucination interception, triad metrics |
 | **Parsing & Ingestion** | PyPDF, Trafilatura, BeautifulSoup4 | Multi-page PDF extraction and live web scraping |
 | **Authentication** | NextAuth.js, Google OAuth 2.0, Credentials | Secure JWT sessions, PBKDF2 SHA-512 password hashing |
 | **State & Data** | TanStack React Query, Sonner | Optimistic mutations, real-time toast notifications, cache management |
@@ -233,7 +248,7 @@ docker-compose up -d --build
 | `GET` | `/api/health` | Verifies service health, active vector database, and primary LLM status. |
 | `POST` | `/api/upload` | Ingests PDF documents, extracts text, generates 768-dim embeddings, and upserts vectors into Pinecone. |
 | `POST` | `/api/web/crawl` | Crawls target URL, extracts markdown, embeds text chunks, and indexes into Pinecone. |
-| `POST` | `/api/chat` | Executes the 6-stage retrieval pipeline and returns a grounded answer with citations. |
+| `POST` | `/api/chat` | Executes the 6-stage retrieval pipeline with guardrails and returns a grounded answer with citations and triad scores. |
 | `POST` | `/api/chat/stream` | Streams AI response tokens in real-time via Server-Sent Events (SSE). |
 | `DELETE` | `/api/namespace/{ns}` | Purges all indexed vector embeddings within the specified namespace. |
 

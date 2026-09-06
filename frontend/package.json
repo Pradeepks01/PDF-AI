@@ -7,10 +7,9 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "bun run scripts/setup.ts",
-    "db:generate": "bunx prisma generate",
-    "db:push": "bunx prisma db push",
-    "db:studio": "bunx prisma studio",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:studio": "npx prisma studio",
     "postinstall": "prisma generate"
   },
   "dependencies": {

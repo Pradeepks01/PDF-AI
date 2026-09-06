@@ -12,7 +12,7 @@ export const useSession = () => {
                 userId: (session.data.user as any)?.id || "user_id",
                 expiresAt: session.data.expires,
                 ipAddress: "127.0.0.1",
-                userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Mozilla/5.0 Chrome/120.0.0.0"
+                userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
             }
         } : null,
         isPending: session.status === "loading",
