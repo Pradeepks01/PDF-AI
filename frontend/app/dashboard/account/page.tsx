@@ -20,6 +20,52 @@ export default function AccountSettingsPage() {
   const [isTesting, setIsTesting] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [clientIp, setClientIp] = useState<string>('Detecting...')
+  const [isRefreshingIp, setIsRefreshingIp] = useState(false)
+
+  const detectClientIp = async (showToast = false) => {
+    setIsRefreshingIp(true)
+    try {
+      // 1. Try internal Next.js API route first
+      const res = await fetch(`/api/ip?t=${Date.now()}`, { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.ip && data.ip !== '127.0.0.1' && data.ip !== '::1') {
+          setClientIp(data.ip)
+          if (showToast) toast.success(`Client IP updated: ${data.ip}`)
+          return
+        }
+      }
+
+      // 2. Direct browser fallback for local development or behind reverse proxy
+      const directRes = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' })
+      if (directRes.ok) {
+        const directData = await directRes.json()
+        if (directData?.ip) {
+          setClientIp(directData.ip)
+          if (showToast) toast.success(`Client IP updated: ${directData.ip}`)
+          return
+        }
+      }
+
+      setClientIp('127.0.0.1')
+      if (showToast) toast.info('Client IP detected: 127.0.0.1 (Localhost)')
+    } catch {
+      try {
+        const fallbackRes = await fetch('https://ipinfo.io/json', { cache: 'no-store' })
+        const fallbackData = await fallbackRes.json()
+        if (fallbackData?.ip) {
+          setClientIp(fallbackData.ip)
+          if (showToast) toast.success(`Client IP updated: ${fallbackData.ip}`)
+          return
+        }
+      } catch {
+        setClientIp('127.0.0.1')
+        if (showToast) toast.error('Could not detect public IP. Using localhost.')
+      }
+    } finally {
+      setIsRefreshingIp(false)
+    }
+  }
 
   // Load saved keys and client IP on mount
   useEffect(() => {
@@ -29,12 +75,7 @@ export default function AccountSettingsPage() {
       setPineconeKey(savedPinecone)
       setGeminiKey(savedGemini)
 
-      fetch('/api/ip')
-        .then(res => res.json())
-        .then(data => {
-          if (data?.ip) setClientIp(data.ip)
-        })
-        .catch(() => setClientIp('127.0.0.1'))
+      detectClientIp(false)
     }
   }, [])
 
@@ -170,15 +211,37 @@ export default function AccountSettingsPage() {
 
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground mb-1">Client IP Address</p>
-                  <p className="font-mono font-semibold text-primary text-base">
-                    {clientIp}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-mono font-semibold text-primary text-base">
+                      {clientIp}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => detectClientIp(true)}
+                      disabled={isRefreshingIp}
+                      title="Refresh Client IP"
+                      className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-card/80 transition cursor-pointer"
+                    >
+                      <RefreshCw className={`size-3.5 ${isRefreshingIp ? 'animate-spin text-primary' : ''}`} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
               <div className="pt-2">
                 <pre className="bg-background/90 p-4 rounded-xl text-xs font-mono text-primary overflow-x-auto border border-border/80">
-                  {JSON.stringify({ ...sessionData, ipAddress: clientIp }, null, 2)}
+                  {JSON.stringify(
+                    {
+                      user,
+                      session: {
+                        expiresAt: sessionData?.expires,
+                        ipAddress: clientIp,
+                        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
+                      }
+                    },
+                    null,
+                    2
+                  )}
                 </pre>
               </div>
             )}
